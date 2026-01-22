@@ -1,0 +1,6 @@
+bin
+output
+config.js
+config_aws.js
+.DS_Store
+.idea
