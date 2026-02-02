@@ -4,3 +4,5 @@ config.js
 config_aws.js
 .DS_Store
 .idea
+local.env
+config_aws.js

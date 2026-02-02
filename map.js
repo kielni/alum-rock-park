@@ -1,3 +1,10 @@
+const CATEGORIES = {
+  "high recent activity": "#edf8fb",
+  "minimal recent work": "#b3cde3",
+  "moderate recent activity": "#8c96c6",
+  "plannned priorities": "#8856a7",
+  other: "#810f7c",
+};
 async function loadData() {
   const response = await fetch(HOST + "ARP_areas.geojson");
   return await response.json();
@@ -15,8 +22,9 @@ function drawAreas(map, data) {
     type: "fill",
     source: "areas",
     paint: {
-      "fill-opacity": 0.1,
-      "fill-color": ["get", "color"],
+      "fill-opacity": 0.2,
+      // "fill-color": ["get", "color"],
+      "fill-color": "#efefef",
     },
   });
 
@@ -52,7 +60,7 @@ function createPoints(map, data) {
 
       // Adjust centroid for specific IDs to avoid label overlap
       const id = feature.properties.id;
-      let adjustmentFactor = 0.0001; // ~22 meters at this latitude
+      let adjustmentFactor = 0.0001;
 
       if (id === 14 || id === 17 || id === 10 || id === 8) {
         centroid[1] -= adjustmentFactor; // move down
@@ -60,11 +68,12 @@ function createPoints(map, data) {
       if (id === 15 || id === 20) {
         centroid[1] += adjustmentFactor; // move up
       }
+      // smaller adjustments
       adjustmentFactor /= 2;
       if (id == 6 || id == 12 || id == 14) {
         centroid[1] -= adjustmentFactor; // move down
       }
-      if (id == 10 || id == 15 || id == 17) {
+      if (id == 15) {
         centroid[1] += adjustmentFactor; // move up
       }
       if (id == 20) {
@@ -97,16 +106,17 @@ function createPoints(map, data) {
     source: "area-centroids",
     minzoom: 10,
     layout: {
-      "text-field": ["get", "name"],
-      //'text-field': ['concat', ['get', 'id'], ' ', ['get', 'name']],
-      "text-size": 11,
+      //"text-field": ["get", "name"],
+      "text-field": ["concat", ["get", "id"], " ", ["get", "name"]],
+      "text-size": ["step", ["zoom"], 11, 17, 15],
       "text-font": ["Noto Sans Bold"],
       "text-allow-overlap": true,
     },
     paint: {
       //'text-color': "#efefef"
-      "text-color": "#1b5e4a",
-      "text-halo-color": "#fff4d9",
+      //"text-color": "#483D8B",
+      "text-color": "#191970",
+      "text-halo-color": "#ffffff",
       "text-halo-width": 1,
     },
   });
@@ -114,79 +124,43 @@ function createPoints(map, data) {
   return layerId;
 }
 
-function updateMarkers() {
-  const markerStatus = markerManager.update();
-
-  console.log("marker status:", markerStatus);
-
-  if (!markerStatus) return;
-
-  // Remove the div that corresponds to removed markers
-  markerStatus.removed.forEach((abstractMarker) => {
-    const markerDiv = markerLogicContainer[abstractMarker.id];
-    delete markerLogicContainer[abstractMarker.id];
-    markerContainer.removeChild(markerDiv);
+function mergeData(geoData, sheetData) {
+  geoData.features.forEach((feature) => {
+    const id = feature.properties.id;
+    if (sheetData[id]) {
+      feature.properties.color = sheetData[id].color;
+      feature.properties.description = sheetData[id].description;
+    } else {
+      feature.properties.color = CATEGORIES["other"];
+      feature.properties.description = "";
+    }
   });
 
-  // Update the div that corresponds to updated markers
-  markerStatus.updated.forEach((abstractMarker) => {
-    const markerDiv = markerLogicContainer[abstractMarker.id];
-    updateMarkerDiv(abstractMarker, markerDiv);
-  });
-
-  // Create the div that corresponds to the new markers
-  markerStatus.new.forEach((abstractMarker) => {
-    const markerDiv = makeMarker(abstractMarker);
-    markerLogicContainer[abstractMarker.id] = markerDiv;
-    markerContainer.appendChild(markerDiv);
-  });
+  return geoData;
 }
 
-function softUpdateMarkers() {
-  // A previous run of .update() yieding no result or not being ran at all
-  // would stop the soft update
-  if (!markerStatus) return;
+async function loadSheetData() {
+  const url =
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/` +
+    `values/areas?key=${SHEETS_API_KEY}`;
+  const response = await fetch(url);
+  const data = await response.json();
 
-  markerStatus.updated.forEach((abstractMarker) => {
-    markerManager.softUpdateAbstractMarker(abstractMarker);
-    const markerDiv = markerLogicContainer[abstractMarker.id];
-    updateMarkerDiv(abstractMarker, markerDiv);
+  const headers = data["values"][0];
+  const rows = data["values"].slice(1);
+
+  const parsedData = {};
+  rows.forEach((row) => {
+    const obj = {};
+    headers.forEach((header, index) => {
+      obj[header] = row[index] || "";
+    });
+    // Add color based on category
+    const category = obj["category"];
+    obj["color"] = CATEGORIES[category] || CATEGORIES["other"];
+    parsedData[obj["id"]] = obj;
   });
 
-  markerStatus.new.forEach((abstractMarker) => {
-    markerManager.softUpdateAbstractMarker(abstractMarker);
-    const markerDiv = markerLogicContainer[abstractMarker.id];
-    updateMarkerDiv(abstractMarker, markerDiv);
-  });
-}
-
-function makeMarker(abstractMarker) {
-  const marker = document.createElement("div");
-  marker.classList.add("marker");
-  marker.classList.add("fade-in-animation");
-  marker.style.setProperty("width", `${abstractMarker.size[0]}px`);
-  marker.style.setProperty("height", `${abstractMarker.size[1]}px`);
-  marker.style.setProperty(
-    "transform",
-    `translate(${abstractMarker.position[0]}px, ${abstractMarker.position[1]}px)`,
-  );
-
-  const feature = abstractMarker.features[0];
-
-  marker.innerHTML = `
-    <div class="markerPointy"></div>
-    <div class="markerBody">
-        <div class="markerTop">${feature.properties["name"]}</div>
-    </div>
-    `;
-  return marker;
-}
-
-function updateMarkerDiv(abstractMarker, marker) {
-  marker.style.setProperty("width", `${abstractMarker.size[0]}px`);
-  marker.style.setProperty("height", `${abstractMarker.size[1]}px`);
-  marker.style.setProperty(
-    "transform",
-    `translate(${abstractMarker.position[0]}px, ${abstractMarker.position[1]}px)`,
-  );
+  console.log("loaded sheet data:", parsedData);
+  return parsedData;
 }
