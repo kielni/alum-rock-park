@@ -23,28 +23,25 @@
       maptilersdk.config.apiKey = MAP_TILER_API_KEY;
 
       const appContainer = document.getElementById("map");
-      const initialStyle = maptilersdk.MapStyle[Object.keys(BASE_MAPS)[0]];
       const map = new maptilersdk.Map({
         container: appContainer,
-        style: initialStyle,
+        style: maptilersdk.MapStyle.HYBRID,
         center: [-121.8091, 37.399], // starting position [lng, lat]
         zoom: 16, // starting zoom
       });
 
       map.on("load", async function () {
-        // Load the GeoJSON data
         const response = await fetch(HOST + "ARP_areas.geojson");
         const geojsonData = await response.json();
         const sheetData = await loadSheetData();
         const data = mergeData(geojsonData, sheetData);
 
-        drawAreas(map, data);
-        createMarkers(map, data);
+        const [fillLayerId, outlineLayerId] = drawAreas(map, data);
+        const markerLayerId = createMarkers(map, data);
 
         map.addControl(
-          new layerSwitcherControl({
-            basemaps: BASE_MAPS,
-            initialBasemap: initialStyle,
+          new LegendControl({
+            layerId: outlineLayerId,
           }),
           "bottom-left",
         );

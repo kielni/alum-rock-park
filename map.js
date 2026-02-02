@@ -3,16 +3,7 @@ const CATEGORIES = {
   "minimal recent work": "#b3cde3",
   "moderate recent activity": "#8c96c6",
   "plannned priorities": "#8856a7",
-  other: "#810f7c",
-};
-
-const BASE_MAPS = {
-  HYBRID: {
-    img: "https://cloud.maptiler.com/static/img/maps/hybrid.png",
-  },
-  TOPO: {
-    img: "https://cloud.maptiler.com/static/img/maps/topo.png",
-  },
+  "no recent activity": "#810f7c",
 };
 
 async function loadData() {
@@ -48,6 +39,8 @@ function drawAreas(map, data) {
       "line-width": 2,
     },
   });
+
+  return ["areas-fill", "areas-outline"];
 }
 
 function addPopups(map, layerId) {
@@ -180,7 +173,7 @@ function mergeData(geoData, sheetData) {
       feature.properties.description =
         sheetData[id].description || "No recent activity.";
     } else {
-      feature.properties.color = CATEGORIES["other"];
+      feature.properties.color = CATEGORIES["no recent activity"];
       feature.properties.description = "";
     }
   });
@@ -206,7 +199,7 @@ async function loadSheetData() {
     });
     // Add color based on category
     const category = obj["category"];
-    obj["color"] = CATEGORIES[category] || CATEGORIES["other"];
+    obj["color"] = CATEGORIES[category] || CATEGORIES["no recent activity"];
     parsedData[obj["id"]] = obj;
   });
 
@@ -214,58 +207,46 @@ async function loadSheetData() {
   return parsedData;
 }
 
-class layerSwitcherControl {
+// legend
+class LegendControl {
   constructor(options) {
     this._options = { ...options };
     this._container = document.createElement("div");
     this._container.classList.add("maplibregl-ctrl");
-    this._container.classList.add("maplibregl-ctrl-basemaps");
-    this._container.classList.add("closed");
-    switch (this._options.expandDirection || "right") {
-      case "top":
-        this._container.classList.add("reverse");
-      case "down":
-        this._container.classList.add("column");
-        break;
-      case "left":
-        this._container.classList.add("reverse");
-      case "right":
-        this._container.classList.add("row");
-    }
-    this._container.addEventListener("mouseenter", () => {
-      this._container.classList.remove("closed");
-    });
-    this._container.addEventListener("mouseleave", () => {
-      this._container.classList.add("closed");
-    });
+    this._container.classList.add("maplibregl-ctrl-choropleth");
+    this.mousemove = this._mousemove.bind(this);
+    this.mouseleave = this._mouseleave.bind(this);
   }
-
   onAdd(map) {
     this._map = map;
-    const basemaps = this._options.basemaps;
-    Object.keys(basemaps).forEach((layerId) => {
-      const base = basemaps[layerId];
-      const basemapContainer = document.createElement("img");
-      basemapContainer.src = base.img;
-      basemapContainer.classList.add("basemap");
-      basemapContainer.dataset.id = layerId;
-      basemapContainer.addEventListener("click", () => {
-        const activeElement = this._container.querySelector(".active");
-        activeElement.classList.remove("active");
-        basemapContainer.classList.add("active");
-        map.setStyle(maptilersdk.MapStyle[layerId]);
-      });
-      basemapContainer.classList.add("hidden");
-      this._container.appendChild(basemapContainer);
-      if (this._options.initialBasemap.id === layerId) {
-        basemapContainer.classList.add("active");
-      }
+    const layer = this._map.getLayer(this._options.layerId);
+    if (!layer) {
+      console.warn("layer ", this._options.layerId, "not found for legend");
+      return this._container;
+    }
+    const labels = [];
+
+    Object.entries(CATEGORIES).forEach(([category, color]) => {
+      labels.push(
+        `<li><span style="background-color: ${color}"></span><label>${category}</label></li>`,
+      );
     });
+    const title = "<h3>Alum Rock Adopt-a-Park<br>work areas</h3>";
+    this._container.innerHTML = `${title}<ul class="legend">${labels.join("")}</ul>`;
+    this._map.on("mousemove", this._options.layerId, this.mousemove);
+    this._map.on("mouseleave", this._options.layerId, this.mouseleave);
     return this._container;
   }
-
+  _mousemove(e) {}
+  _mouseleave() {}
   onRemove() {
-    this._container.parentNode?.removeChild(this._container);
+    if (!this._map || !this._container) {
+      return;
+    }
+    this._map.off("mousemove", this._options.layerId, this.mousemove);
+    this._map.off("mouseleave", this._options.layerId, this.mouseleave);
+    this._container.parentNode.removeChild(this._container);
+    this._map = undefined;
     delete this._map;
   }
 }
