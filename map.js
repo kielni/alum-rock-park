@@ -5,6 +5,16 @@ const CATEGORIES = {
   "plannned priorities": "#8856a7",
   other: "#810f7c",
 };
+
+const BASE_MAPS = {
+  HYBRID: {
+    img: "https://cloud.maptiler.com/static/img/maps/hybrid.png",
+  },
+  TOPO: {
+    img: "https://cloud.maptiler.com/static/img/maps/topo.png",
+  },
+};
+
 async function loadData() {
   const response = await fetch(HOST + "ARP_areas.geojson");
   return await response.json();
@@ -49,8 +59,10 @@ function addPopups(map, layerId) {
     // Change the cursor style as a UI indicator.
     map.getCanvas().style.cursor = "pointer";
 
-    const coordinates = e.features[0].geometry.coordinates.slice();
-    const description = e.features[0].properties.description;
+    const feature = e.features[0];
+    const props = feature.properties;
+    const coordinates = feature.geometry.coordinates.slice();
+    const description = `<b>${props.name}</b>: ${props.description}`;
 
     // Ensure that if the map is zoomed out such that multiple
     // copies of the feature are visible, the popup appears
@@ -200,4 +212,60 @@ async function loadSheetData() {
 
   console.log("loaded sheet data:", parsedData);
   return parsedData;
+}
+
+class layerSwitcherControl {
+  constructor(options) {
+    this._options = { ...options };
+    this._container = document.createElement("div");
+    this._container.classList.add("maplibregl-ctrl");
+    this._container.classList.add("maplibregl-ctrl-basemaps");
+    this._container.classList.add("closed");
+    switch (this._options.expandDirection || "right") {
+      case "top":
+        this._container.classList.add("reverse");
+      case "down":
+        this._container.classList.add("column");
+        break;
+      case "left":
+        this._container.classList.add("reverse");
+      case "right":
+        this._container.classList.add("row");
+    }
+    this._container.addEventListener("mouseenter", () => {
+      this._container.classList.remove("closed");
+    });
+    this._container.addEventListener("mouseleave", () => {
+      this._container.classList.add("closed");
+    });
+  }
+
+  onAdd(map) {
+    this._map = map;
+    const basemaps = this._options.basemaps;
+    Object.keys(basemaps).forEach((layerId) => {
+      const base = basemaps[layerId];
+      const basemapContainer = document.createElement("img");
+      basemapContainer.src = base.img;
+      basemapContainer.classList.add("basemap");
+      basemapContainer.dataset.id = layerId;
+      basemapContainer.addEventListener("click", () => {
+        const activeElement = this._container.querySelector(".active");
+        activeElement.classList.remove("active");
+        basemapContainer.classList.add("active");
+        map.setStyle(maptilersdk.MapStyle[layerId]);
+      });
+      basemapContainer.classList.add("hidden");
+      this._container.appendChild(basemapContainer);
+      if (this._options.initialBasemap.id === layerId) {
+        basemapContainer.classList.add("active");
+      }
+    });
+    return this._container;
+  }
+
+  onRemove() {
+    this._container.parentNode?.removeChild(this._container);
+    delete this._map;
+  }
 }
