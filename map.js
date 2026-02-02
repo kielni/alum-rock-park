@@ -40,6 +40,36 @@ function drawAreas(map, data) {
   });
 }
 
+function addPopups(map, layerId) {
+  const popup = new maptilersdk.Popup({
+    closeButton: false,
+    closeOnClick: false,
+  });
+  map.on("mouseenter", layerId, function (e) {
+    // Change the cursor style as a UI indicator.
+    map.getCanvas().style.cursor = "pointer";
+
+    const coordinates = e.features[0].geometry.coordinates.slice();
+    const description = e.features[0].properties.description;
+
+    // Ensure that if the map is zoomed out such that multiple
+    // copies of the feature are visible, the popup appears
+    // over the copy being pointed to.
+    while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+      coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+    }
+
+    // Populate the popup and set its coordinates
+    // based on the feature found.
+    popup.setLngLat(coordinates).setHTML(description).addTo(map);
+  });
+
+  map.on("mouseleave", layerId, function () {
+    map.getCanvas().style.cursor = "";
+    popup.remove();
+  });
+}
+
 function createPoints(map, data) {
   // create point features at polygon centroids, for marker anchors
   const pointFeatures = {
@@ -124,12 +154,19 @@ function createPoints(map, data) {
   return layerId;
 }
 
+function createMarkers(map, data) {
+  const layerId = createPoints(map, data);
+  addPopups(map, layerId);
+  return layerId;
+}
+
 function mergeData(geoData, sheetData) {
   geoData.features.forEach((feature) => {
     const id = feature.properties.id;
     if (sheetData[id]) {
       feature.properties.color = sheetData[id].color;
-      feature.properties.description = sheetData[id].description;
+      feature.properties.description =
+        sheetData[id].description || "No recent activity.";
     } else {
       feature.properties.color = CATEGORIES["other"];
       feature.properties.description = "";

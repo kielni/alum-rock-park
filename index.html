@@ -10,7 +10,6 @@
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
     <script src="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.umd.min.js"></script>
-    <script src="https://cdn.maptiler.com/maptiler-marker-layout/v2.0.1/maptiler-marker-layout.umd.min.js"></script>
     <link
       href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css"
       rel="stylesheet"
@@ -31,15 +30,6 @@
         zoom: 16, // starting zoom
       });
 
-      // marker setup
-      let markerManager = null;
-      let markerStatus = null;
-      const markerContainer = document.createElement("div");
-      appContainer.appendChild(markerContainer);
-      // This object contains the marker DIV so that they can be updated
-      // rather than fully recreated every time
-      const markerLogicContainer = {};
-
       map.on("load", async function () {
         // Load the GeoJSON data
         const response = await fetch(HOST + "ARP_areas.geojson");
@@ -48,8 +38,7 @@
         const data = mergeData(geojsonData, sheetData);
 
         drawAreas(map, data);
-
-        const markerLayerId = createPoints(map, data);
+        createMarkers(map, data);
       });
     </script>
   </body>
