@@ -1,9 +1,23 @@
 const CATEGORIES = {
+  /*
   "high recent activity": "#edf8fb",
   "minimal recent work": "#b3cde3",
   "moderate recent activity": "#8c96c6",
   "plannned priorities": "#8856a7",
   "no recent activity": "#810f7c",
+  */
+  /*
+  "high recent activity": "#993404",
+  "minimal recent work": "#d95f0e",
+  "moderate recent activity": "#fe9929",
+  "planned priorities": "#fed98e",
+  "no recent activity": "#ffffd4",
+*/
+  "high recent activity": "#006837",
+  "moderate recent activity": "#31a354",
+  "minimal recent work": "#78c679",
+  "planned priorities": "#c2e699",
+  "no recent activity": "#ffffcc",
 };
 
 async function loadData() {
