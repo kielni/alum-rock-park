@@ -13,11 +13,19 @@ const CATEGORIES = {
   "planned priorities": "#fed98e",
   "no recent activity": "#ffffd4",
 */
+  /* green
   "high recent activity": "#006837",
   "moderate recent activity": "#31a354",
   "minimal recent work": "#78c679",
   "planned priorities": "#c2e699",
   "no recent activity": "#ffffcc",
+*/
+  // "no recent activity": "#edf8fb",
+  "high recent activity": "#810f7c",
+  "moderate recent activity": "#8856a7",
+  "minimal recent work": "#8c96c6",
+  "planned priorities": "#9ebcda",
+  "no recent activity": "#bfd3e6",
 };
 
 async function loadData() {
@@ -37,9 +45,9 @@ function drawAreas(map, data) {
     type: "fill",
     source: "areas",
     paint: {
-      "fill-opacity": 0.2,
-      // "fill-color": ["get", "color"],
-      "fill-color": "#efefef",
+      "fill-opacity": 0.4,
+      "fill-color": ["get", "color"],
+      //"fill-color": "#efefef",
     },
   });
 
@@ -49,7 +57,8 @@ function drawAreas(map, data) {
     type: "line",
     source: "areas",
     paint: {
-      "line-color": ["get", "color"],
+      // "line-color": ["get", "color"],
+      "line-color": "#333333",
       "line-width": 2,
     },
   });
@@ -221,6 +230,23 @@ async function loadSheetData() {
   return parsedData;
 }
 
+function addControls(map, outlineLayerId) {
+  map.addControl(
+    new LegendControl({
+      layerId: outlineLayerId,
+    }),
+    "bottom-left",
+  );
+
+  map.addControl(
+    new maptilersdk.ScaleControl({
+      maxWidth: 120,
+      unit: "imperial",
+    }),
+    "bottom-right",
+  );
+}
+
 // legend
 class LegendControl {
   constructor(options) {
@@ -264,3 +290,25 @@ class LegendControl {
     delete this._map;
   }
 }
+
+// print
+
+window.onbeforeprint = function () {
+  map.resize();
+  // Give tiles time to load
+  setTimeout(() => {
+    const canvas = map.getCanvas();
+    const img = document.createElement("img");
+    img.src = canvas.toDataURL();
+    img.id = "print-map";
+    img.style = "width:100%;height:auto;";
+    document.getElementById("map").style.display = "none";
+    document.body.appendChild(img);
+  }, 500);
+};
+
+window.onafterprint = function () {
+  document.getElementById("map").style.display = "";
+  const img = document.getElementById("print-map");
+  if (img) img.remove();
+};

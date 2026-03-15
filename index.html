@@ -44,12 +44,7 @@
         const [fillLayerId, outlineLayerId] = drawAreas(map, data);
         const markerLayerId = createMarkers(map, data);
 
-        map.addControl(
-          new LegendControl({
-            layerId: outlineLayerId,
-          }),
-          "bottom-left",
-        );
+        addControls(map, outlineLayerId);
       });
     </script>
   </body>

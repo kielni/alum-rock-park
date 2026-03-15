@@ -64,3 +64,10 @@ ul.legend {
   cursor: pointer;
   margin-right: 5px;
 }
+
+/* print */
+@media print {
+  .maplibregl-control-container {
+    display: none;
+  }
+}
