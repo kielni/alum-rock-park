@@ -14,9 +14,13 @@ details on the group's work.
 
 I created a first pass GeoJSON file by uploading a photo of the hand-drawn map to ChatGPT, along with approximate
 coordinates of the center of the map and another photo of the map key. This quickly returned a GeoJSON file with
-square polygons and labels in roughly correct relative positions. I edited the features with the
+square polygons and labels in roughly correct relative positions:
+
+<img src="orig/llm_map.png" width=600>
+
+I edited the features with the
 [MapTiler UI](https://www.maptiler.com), then exported a more accurate GeoJSON file. I used MapTiler's excellent
-example documentations to create an
+example examples to create an
 [interactive version](https://kielni.s3.us-west-2.amazonaws.com/arp/index.html) with a satellite basemap, 
 and a [print version](https://kielni.s3.us-west-2.amazonaws.com/arp/index.html?print) with an outdoor basemap.
 The online version displays context about each area in a popup, sourced from a Google Sheet. Members of the
