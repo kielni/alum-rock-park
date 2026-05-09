@@ -1,4 +1,4 @@
-"""Parse a .qgz file into project.py, project.json, and styles/*.xml."""
+"""Parse a .qgz file into project.py and styles/*.xml."""
 
 from __future__ import annotations
 
@@ -387,9 +387,6 @@ def dump(qgz_path: Path, project_dir: Path) -> None:
 
     _write_project_py(spec, project_dir)
     print(f"Wrote {project_dir / 'project.py'}")
-
-    (project_dir / "project.json").write_text(spec.model_dump_json(indent=2))
-    print(f"Wrote {project_dir / 'project.json'}")
 
     for layer in spec.layers:
         renderer_tag = f" [{type(layer.renderer).__name__}]" if layer.renderer else ""

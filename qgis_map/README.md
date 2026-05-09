@@ -15,7 +15,6 @@ qgis_map/
 
   alum_rock_slope/   — one directory per project
     project.py       — source of truth (edit this)
-    project.json     — committed artifact, used for diffs
     styles/          — per-layer XML extracted from the .qgz
     build/           — generated .qgs (gitignored)
 ```
@@ -49,7 +48,7 @@ make build DIR=my_project
 ## Workflow
 
 Edit `project.py` in your IDE. Run `make build-arp` (or `make build DIR=...`).
-Reload in QGIS. Commit `project.py`, `project.json`, and any changed `styles/`.
+Reload in QGIS. Commit `project.py` and any changed `styles/`.
 
 ## Requirements
 

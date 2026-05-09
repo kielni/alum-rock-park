@@ -6,7 +6,7 @@ architecture decisions made before any code was written. Read this first.
 ## Goal
 
 Treat QGIS projects as build output, not source. Source of truth is Python +
-JSON + `.qml` style files in this repo. A build script renders a `.qgs` file
+`.qml` style files in this repo. A build script renders a `.qgs` file
 that QGIS opens. QGIS is used as a viewer; edits happen in code or via
 narrowly scoped UI actions that get captured back into source.
 
@@ -33,18 +33,19 @@ Generalize after friction, not before.
 ## Architecture
 
 ```
-repo/
-  project.py              # ProjectSpec instance — committed source of truth
-  project.json            # Pydantic dump — committed for diffs
-  src/
-    models.py             # Pydantic: ProjectSpec, LayerSpec
-    dump.py               # .qgz → project.py (one-shot import + re-runs)
-    render.py             # project.py → build/project.qgs
-  styles/                 # .qml files, committed as-is (opaque blobs)
-  data/                   # raw inputs, committed (move to DVC if large)
+qgis_map/
+  models.py               # Pydantic: Project, Layer, renderers, symbols
+  dump.py                 # .qgz → project.py + styles/*.xml
+  render.py               # project.py → build/project.qgs
   build.py                # entry point
-  build/                  # gitignored; project.qgs lands here
-  Makefile                # PyQGIS env setup + targets
+  Makefile
+  local.env               # machine-local config (gitignored)
+  local.env.example       # template
+
+  <project_dir>/          # one directory per project
+    project.py            # source of truth — edit this
+    styles/               # per-layer XML extracted from .qgz, committed
+    build/                # gitignored; project.qgs lands here
 ```
 
 ### Key choices
@@ -61,11 +62,6 @@ so symbology can be edited in code without touching the QGIS UI. QGIS UI is
 used for viewing only. Start from `park_symbols.qml` to drive the v1 schema.
 Cross-layer operations (bump all symbol sizes, swap palette) follow naturally.
 
-**JSON over YAML for the serialized artifact.** Pydantic-native, unambiguous
-types, schema validation. Comments don't survive round-trips in either format,
-so YAML's main advantage doesn't apply here. Humans edit `project.py`; the
-`.json` is the diffable build artifact.
-
 **Derived data (slope, hillshade) is gitignored, regenerated from recorded
 commands.** Each transform is a shell command string and a comment explaining
 intent, stored in `project.py`. Not implemented in v1 — added when
@@ -73,13 +69,12 @@ reproducible derived data is needed.
 
 ## Workflow
 
-1. `make dump SRC=path/to/existing.qgz` — generate `project.py`,
-   `styles/*.qml`, `project.json`. Commit.
-2. `make build` — emit `build/project.qgs`. Open in QGIS. Verify it matches
-   the original.
+1. `make dump QGZ=path/to/existing.qgz DIR=project_dir` — generate
+   `project.py` and `styles/*.xml`. Commit.
+2. `make build DIR=project_dir` — emit `build/project.qgs`. Open in QGIS.
+   Verify it matches the original.
 3. Edit `project.py` in VSCode (rename layer, swap source, etc.). `make
-   build`. Reload in QGIS with Ctrl-R (Reload Project plugin) or via the
-   Reloader plugin's auto-watch. Commit `project.py` + `project.json`.
+   build DIR=...`. Reload in QGIS with Ctrl-R. Commit `project.py`.
 4. Two directions for symbology:
    - **Code → QGIS**: edit `project.py`, `make build`, reload in QGIS to view.
    - **QGIS → code**: tweak in QGIS UI, Save Style to overwrite `.qml` in

@@ -1,6 +1,7 @@
 """Entry point: render <project_dir>/project.py → <project_dir>/build/project.qgs."""
 
 import hashlib
+import subprocess
 import sys
 from pathlib import Path
 
@@ -40,6 +41,8 @@ def main() -> None:
     if not force and not _needs_rebuild(project_dir):
         print("project.qgs is up to date")
         return
+
+    subprocess.run(["uv", "run", "black", str(project_py)], check=True)
 
     if str(HERE) not in sys.path:
         sys.path.insert(0, str(HERE))
