@@ -7,11 +7,35 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from src.models import (
+    Renderer,
+    SimpleFill,
+    SimpleLine,
+    SimpleMarker,
+    SingleSymbol,
+    SvgMarker,
+    Symbol,
+    SymbolLayer,
+    RuleRenderer,
+)
+
 HERE = Path(__file__).parent.parent  # qgis_map/
 BUILD = HERE / "build"
 STYLES = HERE / "styles"
 
 _QGS_DOCTYPE = "<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>\n"
+
+
+def _abs_source(source: str) -> str:
+    """Resolve a project-relative source path to absolute for the QGS datasource."""
+    if source.startswith("/") or ":" in source.split("/")[0]:
+        return source  # already absolute or a URI/protocol string
+    geom_suffix = ""
+    path_part = source
+    if "|" in source:
+        path_part, geom_suffix = source.split("|", 1)
+        geom_suffix = "|" + geom_suffix
+    return str((HERE / path_part).resolve()) + geom_suffix
 
 
 def _load_spec():
@@ -120,6 +144,160 @@ def _rebuild_layerorder(root: ET.Element, spec) -> None:
         ET.SubElement(lo, "layer", id=layer.id)
 
 
+# ── Renderer serialization ────────────────────────────────────────────────────
+
+_SCALE = "3x:0,0,0,0,0,0"
+
+
+def _ddp() -> ET.Element:
+    ddp = ET.Element("data_defined_properties")
+    m = ET.SubElement(ddp, "Option", type="Map")
+    ET.SubElement(m, "Option", name="name", value="", type="QString")
+    ET.SubElement(m, "Option", name="properties")
+    ET.SubElement(m, "Option", name="type", value="collection", type="QString")
+    return ddp
+
+
+def _opt_map(props: dict[str, str]) -> ET.Element:
+    el = ET.Element("Option", type="Map")
+    for name, value in props.items():
+        ET.SubElement(el, "Option", name=name, value=value, type="QString")
+    return el
+
+
+def _render_symbol_layer(sl: SymbolLayer) -> ET.Element:
+    el = ET.Element(
+        "layer", locked="0", enabled="1", **{"class": sl.kind, "pass": "0", "id": ""}
+    )
+    if isinstance(sl, SimpleFill):
+        props = {
+            "border_width_map_unit_scale": _SCALE,
+            "color": sl.color,
+            "joinstyle": sl.joinstyle,
+            "offset": sl.offset,
+            "offset_map_unit_scale": _SCALE,
+            "offset_unit": "MM",
+            "outline_color": sl.outline_color,
+            "outline_style": sl.outline_style,
+            "outline_width": str(sl.outline_width),
+            "outline_width_unit": sl.outline_width_unit,
+            "style": sl.style,
+        }
+    elif isinstance(sl, SimpleLine):
+        props = {
+            "capstyle": sl.capstyle,
+            "customdash": "5;2",
+            "customdash_map_unit_scale": _SCALE,
+            "customdash_unit": "MM",
+            "draw_inside_polygon": "0",
+            "joinstyle": sl.joinstyle,
+            "line_color": sl.line_color,
+            "line_style": sl.line_style,
+            "line_width": str(sl.line_width),
+            "line_width_unit": sl.line_width_unit,
+            "offset": sl.offset,
+            "offset_map_unit_scale": _SCALE,
+            "offset_unit": "MM",
+            "ring_filter": "0",
+            "use_custom_dash": "0",
+            "width_map_unit_scale": _SCALE,
+        }
+    elif isinstance(sl, SvgMarker):
+        props = {
+            "angle": str(sl.angle),
+            "color": sl.color,
+            "fixedAspectRatio": "0",
+            "horizontal_anchor_point": "1",
+            "name": sl.name,
+            "offset": sl.offset,
+            "offset_map_unit_scale": _SCALE,
+            "offset_unit": sl.offset_unit,
+            "outline_color": sl.outline_color,
+            "outline_width": str(sl.outline_width),
+            "outline_width_map_unit_scale": _SCALE,
+            "outline_width_unit": sl.outline_width_unit,
+            "scale_method": "diameter",
+            "size": str(sl.size),
+            "size_map_unit_scale": _SCALE,
+            "size_unit": sl.size_unit,
+            "vertical_anchor_point": "1",
+        }
+    elif isinstance(sl, SimpleMarker):
+        props = {
+            "angle": str(sl.angle),
+            "color": sl.color,
+            "horizontal_anchor_point": "1",
+            "joinstyle": sl.joinstyle,
+            "name": sl.name,
+            "offset": sl.offset,
+            "offset_map_unit_scale": _SCALE,
+            "offset_unit": sl.offset_unit,
+            "outline_color": sl.outline_color,
+            "outline_style": "solid",
+            "outline_width": str(sl.outline_width),
+            "outline_width_map_unit_scale": _SCALE,
+            "outline_width_unit": sl.outline_width_unit,
+            "scale_method": "diameter",
+            "size": str(sl.size),
+            "size_map_unit_scale": _SCALE,
+            "size_unit": sl.size_unit,
+            "vertical_anchor_point": "1",
+        }
+    else:
+        props = {}
+    el.append(_opt_map(props))
+    el.append(_ddp())
+    return el
+
+
+def _render_symbol(sym: Symbol, name: str) -> ET.Element:
+    el = ET.Element(
+        "symbol",
+        clip_to_extent="1",
+        alpha=str(sym.alpha),
+        type=sym.type,
+        is_animated="0",
+        frame_rate="10",
+        force_rhr="0",
+        name=name,
+    )
+    el.append(_ddp())
+    for sl in sym.layers:
+        el.append(_render_symbol_layer(sl))
+    return el
+
+
+def _render_renderer(renderer: Renderer) -> ET.Element:
+    base = dict(
+        forceraster="0", referencescale="-1", symbollevels="0", enableorderby="0"
+    )
+    if isinstance(renderer, SingleSymbol):
+        el = ET.Element("renderer-v2", type="singleSymbol", **base)
+        syms = ET.SubElement(el, "symbols")
+        syms.append(_render_symbol(renderer.symbol, "0"))
+        ET.SubElement(el, "rotation")
+        ET.SubElement(el, "sizescale")
+        return el
+    if isinstance(renderer, RuleRenderer):
+        el = ET.Element("renderer-v2", type="RuleRenderer", **base)
+        rules_el = ET.SubElement(el, "rules", key=renderer.rules_key)
+        for rule in renderer.rules:
+            attrs: dict[str, str] = {
+                "key": rule.key,
+                "label": rule.label,
+                "filter": rule.filter,
+                "symbol": str(rule.symbol_index),
+            }
+            if not rule.active:
+                attrs["checkstate"] = "0"
+            ET.SubElement(rules_el, "rule", **attrs)
+        syms = ET.SubElement(el, "symbols")
+        for i, sym in enumerate(renderer.symbols):
+            syms.append(_render_symbol(sym, str(i)))
+        return el
+    raise ValueError(f"Unknown renderer type: {type(renderer)}")
+
+
 def _inject_layers(root: ET.Element, spec) -> None:
     pl = root.find("projectlayers")
     if pl is None:
@@ -135,10 +313,19 @@ def _inject_layers(root: ET.Element, spec) -> None:
         ml = ET.parse(xml_path).getroot()
         ds = ml.find("datasource")
         if ds is not None:
-            ds.text = layer.source
+            ds.text = _abs_source(layer.source)
         nm = ml.find("layername")
         if nm is not None:
             nm.text = layer.name
+        if layer.renderer is not None:
+            old = ml.find("renderer-v2")
+            new = _render_renderer(layer.renderer)
+            if old is not None:
+                children = list(ml)
+                ml.remove(old)
+                ml.insert(children.index(old), new)
+            else:
+                ml.append(new)
         pl.append(ml)
 
 

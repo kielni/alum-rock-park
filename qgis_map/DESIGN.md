@@ -25,7 +25,7 @@ Coming from software engineering, the user wants:
 
 - Writing a QGIS plugin
 - Reinventing the PyQGIS API
-- Modeling the entire QGIS project schema upfront
+- Modeling the entire QGIS project schema upfront (expand from `arp.qgz` only)
 - Building a generic framework before getting hands-on experience
 
 Generalize after friction, not before.
@@ -56,18 +56,20 @@ for everything else. Expand the typed surface as we hit specific needs.
 **`.qgs` not `.qgz`.** Uncompressed XML output, gitignored. Compressed
 projects defeat diffing.
 
-**`.qml` files committed as opaque blobs.** No XML hand-editing, no Pydantic
-modeling of symbology in v1. QGIS UI edits → Save Style → overwrites the
-`.qml` → commit. Cross-layer style operations get added later if needed.
+**`.qml` files parsed with Pydantic.** QML is XML; parse it into typed models
+so symbology can be edited in code without touching the QGIS UI. QGIS UI is
+used for viewing only. Start from `park_symbols.qml` to drive the v1 schema.
+Cross-layer operations (bump all symbol sizes, swap palette) follow naturally.
 
 **JSON over YAML for the serialized artifact.** Pydantic-native, unambiguous
 types, schema validation. Comments don't survive round-trips in either format,
 so YAML's main advantage doesn't apply here. Humans edit `project.py`; the
 `.json` is the diffable build artifact.
 
-**Derived data (slope, hillshade) is gitignored, regenerated from
-TransformSpecs.** Not implemented in v1 — added when reproducible derived data
-is needed.
+**Derived data (slope, hillshade) is gitignored, regenerated from recorded
+commands.** Each transform is a shell command string and a comment explaining
+intent, stored in `project.py`. Not implemented in v1 — added when
+reproducible derived data is needed.
 
 ## Workflow
 
@@ -78,8 +80,11 @@ is needed.
 3. Edit `project.py` in VSCode (rename layer, swap source, etc.). `make
    build`. Reload in QGIS with Ctrl-R (Reload Project plugin) or via the
    Reloader plugin's auto-watch. Commit `project.py` + `project.json`.
-4. Tweak symbology in QGIS UI → Save Style → overwrite the `.qml` in
-   `styles/`. Commit.
+4. Two directions for symbology:
+   - **Code → QGIS**: edit `project.py`, `make build`, reload in QGIS to view.
+   - **QGIS → code**: tweak in QGIS UI, Save Style to overwrite `.qml` in
+     `styles/`, then `make dump` to re-parse QML back into `project.py`.
+     `git diff` to review what changed; commit.
 5. Hit something the model doesn't capture → add a field to `models.py`,
    re-run `make dump` on a fresh copy of the project, diff. Or stuff it in
    `extra` and move on.
@@ -89,9 +94,10 @@ is needed.
 For "tried hillshade, then slope, then slope-with-buckets, want to keep only
 the last":
 
-- Processing → History in QGIS logs every algorithm call as a runnable Python
-  snippet with parameters. Copy the keeper, translate into a TransformSpec
-  entry (when transforms are implemented).
+- Derive the command (gdal, grass, etc.) from QGIS Processing → History, an
+  LLM suggestion, or the tool's own docs. Add it to `project.py` as a shell
+  command string and a comment explaining intent. `make build` re-runs only
+  stale transforms.
 - For non-Processing changes (symbology, layer order): `make dump` produces a
   fresh `project.py`. `git diff` shows what changed. Keep what you want;
   revert the rest with `git checkout`.
@@ -128,22 +134,36 @@ Start here. Add fields when something concrete needs them.
 
 ## Dump implementation notes
 
-- Open project via `QgsProject.instance().read(path)`
-- Iterate `mapLayers().values()`
-- Per layer: `layer.source()`, `layer.crs().authid()`, `layer.providerType()`
-- Save style via `layer.saveNamedStyle(styles/<id>.qml)`
-- Write `project.py` as a Python file containing a `project = ProjectSpec(...)`
-  literal. Use `black` or `ruff format` on output for clean diffs.
-- Lossy is acceptable in v1. Round-trip fidelity is verified visually in QGIS.
+No PyQGIS — parse XML directly. A `.qgz` is a zip; unzip to get `.qgs`.
+
+- Unzip `arp.qgz` → `project.qgs` (XML)
+- Parse with `lxml` or `xml.etree`
+- Per `<maplayer>`: extract `datasource`, `srs/authid`, `provider`, `layername`
+- Extract embedded or linked `.qml` style per layer
+- Parse QML into `StyleSpec` Pydantic model (drive schema from `park_symbols.qml`)
+- Write `project.py` as a Python literal. Run `ruff format` for clean diffs.
+- Lossy is acceptable in v1. Round-trip fidelity verified visually in QGIS.
 
 ## Render implementation notes
 
-- `QgsApplication([], False); QgsApplication.initQgis()` at startup
-- Fresh `QgsProject()`, set CRS, set title
-- Per LayerSpec: construct `QgsVectorLayer` or `QgsRasterLayer`, validate
-  `isValid()`, call `loadNamedStyle(style_qml)` if set
-- `project.write("build/project.qgs")`
-- `QgsApplication.exitQgis()` at end
+No PyQGIS — generate XML directly.
+
+- Load `ProjectSpec` from `project.py`
+- Start from a minimal `.qgs` XML template (extract from `arp.qgz` as baseline)
+- Inject layer entries, CRS, extent, title by manipulating the XML tree
+- Serialize each `StyleSpec` back to QML XML
+- Write `build/project.qgs`
+- Build is incremental: only re-render layers or styles whose spec has changed
+
+## Build incrementality
+
+Track a content hash (or mtime) per artifact:
+- `project.qgs` — regenerate if any `ProjectSpec` field changes
+- Per-layer QML — regenerate only if that layer's `StyleSpec` changes
+- Transform outputs — re-run only if source data or transform params change
+
+Simple approach for v1: hash `project.py` and compare to a stored hash in
+`build/.state`. Full dependency graph if complexity warrants it later.
 
 ## Reload in QGIS
 
@@ -155,18 +175,20 @@ project. Manual reload is fine for v1; automate later if it gets old.
 
 Add when concrete need arises, not before:
 
-- TransformSpec (Processing algorithms with serialized params)
-- Symbology models (cross-layer edits like "bump all symbol sizes 20%")
+- Structured transform tracking (v1 captures commands as plain strings;
+  structured params, dependency tracking, and partial re-runs come later)
 - Symbol library integration (NPS symbols, etc.)
 - DVC for large derived rasters
 - File watcher that triggers Ctrl-R automatically
 
 ## First task for Claude Code
 
-1. Set up `src/models.py` per the v1 spec above
-2. Confirm Makefile targets work for the user's OS (PyQGIS paths vary)
-3. Implement `dump.py` against the user's actual `.qgz` (ask for the path)
-4. Implement `render.py`
+1. Inspect `arp.qgz` and `park_symbols.qml` to understand the actual XML schema
+2. Draft `src/models.py` — `ProjectSpec`, `LayerSpec`, `StyleSpec` — driven by
+   what's actually in those files, not hypothetical fields
+3. Implement `dump.py` using `lxml` to parse `arp.qgz` → `project.py`
+4. Implement `render.py` to generate `build/project.qgs` from `project.py`
 5. Verify round-trip: dump → build → open in QGIS → confirm visual match
+6. Add incremental build state tracking to `build.py`
 
 Do not build features beyond v1 until the round-trip works on a real project.
