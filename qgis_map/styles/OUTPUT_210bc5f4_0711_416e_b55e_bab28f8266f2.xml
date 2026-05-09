@@ -1,0 +1,239 @@
+<maplayer styleCategories="AllStyleCategories" minScale="1e+08" refreshOnNotifyMessage="" maxScale="0" type="raster" autoRefreshMode="Disabled" autoRefreshTime="0" hasScaleBasedVisibilityFlag="0" legendPlaceholderImage="" refreshOnNotifyEnabled="0">
+      <extent>
+        <xmin>587748.97761761792935431</xmin>
+        <ymin>4095282.1619093781337142</ymin>
+        <xmax>678012.11867558665107936</xmax>
+        <ymax>4207765.06559065263718367</ymax>
+      </extent>
+      <wgs84extent>
+        <xmin>-122.01380999028103247</xmin>
+        <ymin>36.98683843101529334</ymin>
+        <xmax>-120.97256619907521724</xmax>
+        <ymax>38.01332657797492232</ymax>
+      </wgs84extent>
+      <id>OUTPUT_210bc5f4_0711_416e_b55e_bab28f8266f2</id>
+      <datasource>/private/var/folders/6q/17f_ht2n2yq_3wjgfgcwpd400000gn/T/processing_gLvpzd/5f93d8fd15fc45adb8af508548e1125c/OUTPUT.tif</datasource>
+      <layername>elevation-10N</layername>
+      <srs>
+        <spatialrefsys nativeFormat="Wkt">
+          <wkt>PROJCRS["NAD83 / UTM zone 10N",BASEGEOGCRS["NAD83",DATUM["North American Datum 1983",ELLIPSOID["GRS 1980",6378137,298.257222101,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],ID["EPSG",4269]],CONVERSION["UTM zone 10N",METHOD["Transverse Mercator",ID["EPSG",9807]],PARAMETER["Latitude of natural origin",0,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8801]],PARAMETER["Longitude of natural origin",-123,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8802]],PARAMETER["Scale factor at natural origin",0.9996,SCALEUNIT["unity",1],ID["EPSG",8805]],PARAMETER["False easting",500000,LENGTHUNIT["metre",1],ID["EPSG",8806]],PARAMETER["False northing",0,LENGTHUNIT["metre",1],ID["EPSG",8807]]],CS[Cartesian,2],AXIS["(E)",east,ORDER[1],LENGTHUNIT["metre",1]],AXIS["(N)",north,ORDER[2],LENGTHUNIT["metre",1]],USAGE[SCOPE["Engineering survey, topographic mapping."],AREA["North America - between 126°W and 120°W - onshore and offshore. Canada - British Columbia; Northwest Territories; Yukon. United States (USA) - California; Oregon; Washington."],BBOX[30.54,-126,81.8,-119.99]],ID["EPSG",26910]]</wkt>
+          <proj4>+proj=utm +zone=10 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+          <srsid>2287</srsid>
+          <srid>26910</srid>
+          <authid>EPSG:26910</authid>
+          <description>NAD83 / UTM zone 10N</description>
+          <projectionacronym>utm</projectionacronym>
+          <ellipsoidacronym>EPSG:7019</ellipsoidacronym>
+          <geographicflag>false</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <resourceMetadata>
+        <identifier />
+        <parentidentifier />
+        <language />
+        <type>dataset</type>
+        <title />
+        <abstract />
+        <contact>
+          <name />
+          <organization />
+          <position />
+          <voice />
+          <fax />
+          <email />
+          <role />
+        </contact>
+        <links />
+        <dates />
+        <fees />
+        <encoding />
+        <crs>
+          <spatialrefsys nativeFormat="Wkt">
+            <wkt>PROJCRS["NAD83 / UTM zone 10N",BASEGEOGCRS["NAD83",DATUM["North American Datum 1983",ELLIPSOID["GRS 1980",6378137,298.257222101,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],ID["EPSG",4269]],CONVERSION["UTM zone 10N",METHOD["Transverse Mercator",ID["EPSG",9807]],PARAMETER["Latitude of natural origin",0,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8801]],PARAMETER["Longitude of natural origin",-123,ANGLEUNIT["degree",0.0174532925199433],ID["EPSG",8802]],PARAMETER["Scale factor at natural origin",0.9996,SCALEUNIT["unity",1],ID["EPSG",8805]],PARAMETER["False easting",500000,LENGTHUNIT["metre",1],ID["EPSG",8806]],PARAMETER["False northing",0,LENGTHUNIT["metre",1],ID["EPSG",8807]]],CS[Cartesian,2],AXIS["(E)",east,ORDER[1],LENGTHUNIT["metre",1]],AXIS["(N)",north,ORDER[2],LENGTHUNIT["metre",1]],USAGE[SCOPE["Engineering survey, topographic mapping."],AREA["North America - between 126°W and 120°W - onshore and offshore. Canada - British Columbia; Northwest Territories; Yukon. United States (USA) - California; Oregon; Washington."],BBOX[30.54,-126,81.8,-119.99]],ID["EPSG",26910]]</wkt>
+            <proj4>+proj=utm +zone=10 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+            <srsid>2287</srsid>
+            <srid>26910</srid>
+            <authid>EPSG:26910</authid>
+            <description>NAD83 / UTM zone 10N</description>
+            <projectionacronym>utm</projectionacronym>
+            <ellipsoidacronym>EPSG:7019</ellipsoidacronym>
+            <geographicflag>false</geographicflag>
+          </spatialrefsys>
+        </crs>
+        <extent>
+          <spatial dimensions="2" crs="EPSG:26910" minx="179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368" maxx="-179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368" miny="179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368" maxy="-179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368" minz="0" maxz="0" />
+          <temporal>
+            <period>
+              <start />
+              <end />
+            </period>
+          </temporal>
+        </extent>
+      </resourceMetadata>
+      <provider>gdal</provider>
+      <noData>
+        <noDataList useSrcNoData="1" bandNo="1" />
+      </noData>
+      <map-layer-style-manager current="default">
+        <map-layer-style name="default" />
+      </map-layer-style-manager>
+      <flags>
+        <Identifiable>1</Identifiable>
+        <Removable>1</Removable>
+        <Searchable>0</Searchable>
+        <Private>0</Private>
+      </flags>
+      <temporal fetchMode="0" enabled="0" bandNumber="1" mode="0">
+        <fixedRange>
+          <start />
+          <end />
+        </fixedRange>
+      </temporal>
+      <elevation enabled="0" zoffset="0" mode="RepresentsElevationSurface" zscale="1" band="1" symbology="Line">
+        <data-defined-properties>
+          <Option type="Map">
+            <Option type="QString" value="" name="name" />
+            <Option name="properties" />
+            <Option type="QString" value="collection" name="type" />
+          </Option>
+        </data-defined-properties>
+        <profileLineSymbol>
+          <symbol clip_to_extent="1" alpha="1" type="line" is_animated="0" frame_rate="10" force_rhr="0" name="">
+            <data_defined_properties>
+              <Option type="Map">
+                <Option type="QString" value="" name="name" />
+                <Option name="properties" />
+                <Option type="QString" value="collection" name="type" />
+              </Option>
+            </data_defined_properties>
+            <layer locked="0" enabled="1" class="SimpleLine" pass="0" id="{d0617fb1-eb86-4fa5-955c-1f4d9017f2df}">
+              <Option type="Map">
+                <Option type="QString" value="0" name="align_dash_pattern" />
+                <Option type="QString" value="square" name="capstyle" />
+                <Option type="QString" value="5;2" name="customdash" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="customdash_map_unit_scale" />
+                <Option type="QString" value="MM" name="customdash_unit" />
+                <Option type="QString" value="0" name="dash_pattern_offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="dash_pattern_offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="dash_pattern_offset_unit" />
+                <Option type="QString" value="0" name="draw_inside_polygon" />
+                <Option type="QString" value="bevel" name="joinstyle" />
+                <Option type="QString" value="232,113,141,255,rgb:0.9098039,0.4431373,0.5529412,1" name="line_color" />
+                <Option type="QString" value="solid" name="line_style" />
+                <Option type="QString" value="0.6" name="line_width" />
+                <Option type="QString" value="MM" name="line_width_unit" />
+                <Option type="QString" value="0" name="offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="offset_unit" />
+                <Option type="QString" value="0" name="ring_filter" />
+                <Option type="QString" value="0" name="trim_distance_end" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="trim_distance_end_map_unit_scale" />
+                <Option type="QString" value="MM" name="trim_distance_end_unit" />
+                <Option type="QString" value="0" name="trim_distance_start" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="trim_distance_start_map_unit_scale" />
+                <Option type="QString" value="MM" name="trim_distance_start_unit" />
+                <Option type="QString" value="0" name="tweak_dash_pattern_on_corners" />
+                <Option type="QString" value="0" name="use_custom_dash" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="width_map_unit_scale" />
+              </Option>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option type="QString" value="" name="name" />
+                  <Option name="properties" />
+                  <Option type="QString" value="collection" name="type" />
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </profileLineSymbol>
+        <profileFillSymbol>
+          <symbol clip_to_extent="1" alpha="1" type="fill" is_animated="0" frame_rate="10" force_rhr="0" name="">
+            <data_defined_properties>
+              <Option type="Map">
+                <Option type="QString" value="" name="name" />
+                <Option name="properties" />
+                <Option type="QString" value="collection" name="type" />
+              </Option>
+            </data_defined_properties>
+            <layer locked="0" enabled="1" class="SimpleFill" pass="0" id="{b5120b6f-b768-4751-9fed-de1d8903ae8e}">
+              <Option type="Map">
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="border_width_map_unit_scale" />
+                <Option type="QString" value="232,113,141,255,rgb:0.9098039,0.4431373,0.5529412,1" name="color" />
+                <Option type="QString" value="bevel" name="joinstyle" />
+                <Option type="QString" value="0,0" name="offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="offset_unit" />
+                <Option type="QString" value="35,35,35,255,rgb:0.1372549,0.1372549,0.1372549,1" name="outline_color" />
+                <Option type="QString" value="no" name="outline_style" />
+                <Option type="QString" value="0.26" name="outline_width" />
+                <Option type="QString" value="MM" name="outline_width_unit" />
+                <Option type="QString" value="solid" name="style" />
+              </Option>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option type="QString" value="" name="name" />
+                  <Option name="properties" />
+                  <Option type="QString" value="collection" name="type" />
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </profileFillSymbol>
+      </elevation>
+      <customproperties>
+        <Option type="Map">
+          <Option type="bool" value="false" name="WMSBackgroundLayer" />
+          <Option type="bool" value="false" name="WMSPublishDataSourceUrl" />
+          <Option type="int" value="0" name="embeddedWidgets/count" />
+          <Option type="QString" value="Value" name="identify/format" />
+        </Option>
+      </customproperties>
+      <mapTip enabled="1" />
+      <pipe-data-defined-properties>
+        <Option type="Map">
+          <Option type="QString" value="" name="name" />
+          <Option name="properties" />
+          <Option type="QString" value="collection" name="type" />
+        </Option>
+      </pipe-data-defined-properties>
+      <pipe>
+        <provider>
+          <resampling maxOversampling="2" enabled="false" zoomedInResamplingMethod="nearestNeighbour" zoomedOutResamplingMethod="nearestNeighbour" />
+        </provider>
+        <rasterrenderer grayBand="1" gradient="BlackToWhite" nodataColor="" alphaBand="-1" type="singlebandgray" opacity="0.711">
+          <rasterTransparency />
+          <minMaxOrigin>
+            <limits>MinMax</limits>
+            <extent>WholeRaster</extent>
+            <statAccuracy>Estimated</statAccuracy>
+            <cumulativeCutLower>0.02</cumulativeCutLower>
+            <cumulativeCutUpper>0.98</cumulativeCutUpper>
+            <stdDevFactor>2</stdDevFactor>
+          </minMaxOrigin>
+          <contrastEnhancement>
+            <minValue>-6.17544</minValue>
+            <maxValue>1311.72</maxValue>
+            <algorithm>StretchToMinimumMaximum</algorithm>
+          </contrastEnhancement>
+          <rampLegendSettings orientation="2" minimumLabel="" maximumLabel="" suffix="" direction="0" useContinuousLegend="1" prefix="">
+            <numericFormat id="basic">
+              <Option type="Map">
+                <Option type="invalid" name="decimal_separator" />
+                <Option type="int" value="6" name="decimals" />
+                <Option type="int" value="0" name="rounding_type" />
+                <Option type="bool" value="false" name="show_plus" />
+                <Option type="bool" value="true" name="show_thousand_separator" />
+                <Option type="bool" value="false" name="show_trailing_zeros" />
+                <Option type="invalid" name="thousand_separator" />
+              </Option>
+            </numericFormat>
+          </rampLegendSettings>
+        </rasterrenderer>
+        <brightnesscontrast gamma="1" contrast="0" brightness="0" />
+        <huesaturation colorizeRed="255" colorizeGreen="128" invertColors="0" colorizeOn="0" grayscaleMode="0" saturation="0" colorizeStrength="100" colorizeBlue="128" />
+        <rasterresampler maxOversampling="2" />
+        <resamplingStage>resamplingFilter</resamplingStage>
+      </pipe>
+      <blendMode>0</blendMode>
+    </maplayer>
+    

@@ -1,0 +1,687 @@
+<maplayer autoRefreshTime="0" styleCategories="AllStyleCategories" labelsEnabled="0" simplifyDrawingTol="1" simplifyMaxScale="1" autoRefreshMode="Disabled" simplifyAlgorithm="0" geometry="Polygon" type="vector" readOnly="0" refreshOnNotifyEnabled="0" simplifyDrawingHints="1" wkbType="Polygon" refreshOnNotifyMessage="" maxScale="0" symbologyReferenceScale="-1" minScale="100000000" hasScaleBasedVisibilityFlag="0" legendPlaceholderImage="" simplifyLocal="1">
+      <extent>
+        <xmin>-121.83300669999999855</xmin>
+        <ymin>37.35910379999999975</ymin>
+        <xmax>-121.72714700000000221</xmax>
+        <ymax>37.41355490000000117</ymax>
+      </extent>
+      <wgs84extent>
+        <xmin>-121.83300669999999855</xmin>
+        <ymin>37.35910379999999975</ymin>
+        <xmax>-121.72714700000000221</xmax>
+        <ymax>37.41355490000000117</ymax>
+      </wgs84extent>
+      <id>park_features_symbol_066caa31_d52c_4a88_9c6f_1496a58e5d94</id>
+      <datasource>./park_features_symbol.geojson|geometrytype=Polygon</datasource>
+      <layername>park_features_symbol</layername>
+      <srs>
+        <spatialrefsys nativeFormat="Wkt">
+          <wkt>GEOGCRS["WGS 84",ENSEMBLE["World Geodetic System 1984 ensemble",MEMBER["World Geodetic System 1984 (Transit)"],MEMBER["World Geodetic System 1984 (G730)"],MEMBER["World Geodetic System 1984 (G873)"],MEMBER["World Geodetic System 1984 (G1150)"],MEMBER["World Geodetic System 1984 (G1674)"],MEMBER["World Geodetic System 1984 (G1762)"],MEMBER["World Geodetic System 1984 (G2139)"],MEMBER["World Geodetic System 1984 (G2296)"],ELLIPSOID["WGS 84",6378137,298.257223563,LENGTHUNIT["metre",1]],ENSEMBLEACCURACY[2.0]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],CS[ellipsoidal,2],AXIS["geodetic latitude (Lat)",north,ORDER[1],ANGLEUNIT["degree",0.0174532925199433]],AXIS["geodetic longitude (Lon)",east,ORDER[2],ANGLEUNIT["degree",0.0174532925199433]],USAGE[SCOPE["Horizontal component of 3D system."],AREA["World."],BBOX[-90,-180,90,180]],ID["EPSG",4326]]</wkt>
+          <proj4>+proj=longlat +datum=WGS84 +no_defs</proj4>
+          <srsid>3452</srsid>
+          <srid>4326</srid>
+          <authid>EPSG:4326</authid>
+          <description>WGS 84</description>
+          <projectionacronym>longlat</projectionacronym>
+          <ellipsoidacronym>EPSG:7030</ellipsoidacronym>
+          <geographicflag>true</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <resourceMetadata>
+        <identifier />
+        <parentidentifier />
+        <language />
+        <type>dataset</type>
+        <title />
+        <abstract />
+        <contact>
+          <name />
+          <organization />
+          <position />
+          <voice />
+          <fax />
+          <email />
+          <role />
+        </contact>
+        <links />
+        <dates />
+        <fees />
+        <encoding />
+        <crs>
+          <spatialrefsys nativeFormat="Wkt">
+            <wkt>GEOGCRS["WGS 84",ENSEMBLE["World Geodetic System 1984 ensemble",MEMBER["World Geodetic System 1984 (Transit)"],MEMBER["World Geodetic System 1984 (G730)"],MEMBER["World Geodetic System 1984 (G873)"],MEMBER["World Geodetic System 1984 (G1150)"],MEMBER["World Geodetic System 1984 (G1674)"],MEMBER["World Geodetic System 1984 (G1762)"],MEMBER["World Geodetic System 1984 (G2139)"],MEMBER["World Geodetic System 1984 (G2296)"],ELLIPSOID["WGS 84",6378137,298.257223563,LENGTHUNIT["metre",1]],ENSEMBLEACCURACY[2.0]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],CS[ellipsoidal,2],AXIS["geodetic latitude (Lat)",north,ORDER[1],ANGLEUNIT["degree",0.0174532925199433]],AXIS["geodetic longitude (Lon)",east,ORDER[2],ANGLEUNIT["degree",0.0174532925199433]],USAGE[SCOPE["Horizontal component of 3D system."],AREA["World."],BBOX[-90,-180,90,180]],ID["EPSG",4326]]</wkt>
+            <proj4>+proj=longlat +datum=WGS84 +no_defs</proj4>
+            <srsid>3452</srsid>
+            <srid>4326</srid>
+            <authid>EPSG:4326</authid>
+            <description>WGS 84</description>
+            <projectionacronym>longlat</projectionacronym>
+            <ellipsoidacronym>EPSG:7030</ellipsoidacronym>
+            <geographicflag>true</geographicflag>
+          </spatialrefsys>
+        </crs>
+        <extent>
+          <spatial dimensions="2" crs="EPSG:4326" minx="179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368" maxx="-179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368" miny="179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368" maxy="-179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368" minz="0" maxz="0" />
+          <temporal>
+            <period>
+              <start />
+              <end />
+            </period>
+          </temporal>
+        </extent>
+      </resourceMetadata>
+      <provider encoding="UTF-8">ogr</provider>
+      <vectorjoins />
+      <layerDependencies />
+      <dataDependencies />
+      <expressionfields />
+      <map-layer-style-manager current="default">
+        <map-layer-style name="default" />
+      </map-layer-style-manager>
+      <auxiliaryLayer />
+      <flags>
+        <Identifiable>1</Identifiable>
+        <Removable>1</Removable>
+        <Searchable>1</Searchable>
+        <Private>0</Private>
+      </flags>
+      <temporal durationField="" enabled="0" endField="" durationUnit="min" endExpression="" mode="0" accumulate="0" startField="" startExpression="" fixedDuration="0" limitMode="0">
+        <fixedRange>
+          <start />
+          <end />
+        </fixedRange>
+      </temporal>
+      <elevation clamping="Terrain" respectLayerSymbol="1" showMarkerSymbolInSurfacePlots="0" zoffset="0" extrusionEnabled="0" customToleranceEnabled="1" zscale="1" type="IndividualFeatures" binding="Centroid" extrusion="0" symbology="Line">
+        <data-defined-properties>
+          <Option type="Map">
+            <Option type="QString" value="" name="name" />
+            <Option name="properties" />
+            <Option type="QString" value="collection" name="type" />
+          </Option>
+        </data-defined-properties>
+        <profileLineSymbol>
+          <symbol clip_to_extent="1" alpha="1" type="line" is_animated="0" frame_rate="10" force_rhr="0" name="">
+            <data_defined_properties>
+              <Option type="Map">
+                <Option type="QString" value="" name="name" />
+                <Option name="properties" />
+                <Option type="QString" value="collection" name="type" />
+              </Option>
+            </data_defined_properties>
+            <layer locked="0" enabled="1" class="SimpleLine" pass="0" id="{138f54f9-b800-4aa9-bd40-2bcc682b835d}">
+              <Option type="Map">
+                <Option type="QString" value="0" name="align_dash_pattern" />
+                <Option type="QString" value="square" name="capstyle" />
+                <Option type="QString" value="5;2" name="customdash" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="customdash_map_unit_scale" />
+                <Option type="QString" value="MM" name="customdash_unit" />
+                <Option type="QString" value="0" name="dash_pattern_offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="dash_pattern_offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="dash_pattern_offset_unit" />
+                <Option type="QString" value="0" name="draw_inside_polygon" />
+                <Option type="QString" value="bevel" name="joinstyle" />
+                <Option type="QString" value="232,113,141,255,rgb:0.9098039,0.4431373,0.5529412,1" name="line_color" />
+                <Option type="QString" value="solid" name="line_style" />
+                <Option type="QString" value="0.6" name="line_width" />
+                <Option type="QString" value="MM" name="line_width_unit" />
+                <Option type="QString" value="0" name="offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="offset_unit" />
+                <Option type="QString" value="0" name="ring_filter" />
+                <Option type="QString" value="0" name="trim_distance_end" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="trim_distance_end_map_unit_scale" />
+                <Option type="QString" value="MM" name="trim_distance_end_unit" />
+                <Option type="QString" value="0" name="trim_distance_start" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="trim_distance_start_map_unit_scale" />
+                <Option type="QString" value="MM" name="trim_distance_start_unit" />
+                <Option type="QString" value="0" name="tweak_dash_pattern_on_corners" />
+                <Option type="QString" value="0" name="use_custom_dash" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="width_map_unit_scale" />
+              </Option>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option type="QString" value="" name="name" />
+                  <Option name="properties" />
+                  <Option type="QString" value="collection" name="type" />
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </profileLineSymbol>
+        <profileFillSymbol>
+          <symbol clip_to_extent="1" alpha="1" type="fill" is_animated="0" frame_rate="10" force_rhr="0" name="">
+            <data_defined_properties>
+              <Option type="Map">
+                <Option type="QString" value="" name="name" />
+                <Option name="properties" />
+                <Option type="QString" value="collection" name="type" />
+              </Option>
+            </data_defined_properties>
+            <layer locked="0" enabled="1" class="SimpleFill" pass="0" id="{81464bfc-7618-420e-889b-d022aea88fcd}">
+              <Option type="Map">
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="border_width_map_unit_scale" />
+                <Option type="QString" value="232,113,141,255,rgb:0.9098039,0.4431373,0.5529412,1" name="color" />
+                <Option type="QString" value="bevel" name="joinstyle" />
+                <Option type="QString" value="0,0" name="offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="offset_unit" />
+                <Option type="QString" value="166,81,101,255,rgb:0.6498512,0.3165179,0.3949645,1" name="outline_color" />
+                <Option type="QString" value="solid" name="outline_style" />
+                <Option type="QString" value="0.2" name="outline_width" />
+                <Option type="QString" value="MM" name="outline_width_unit" />
+                <Option type="QString" value="solid" name="style" />
+              </Option>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option type="QString" value="" name="name" />
+                  <Option name="properties" />
+                  <Option type="QString" value="collection" name="type" />
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </profileFillSymbol>
+        <profileMarkerSymbol>
+          <symbol clip_to_extent="1" alpha="1" type="marker" is_animated="0" frame_rate="10" force_rhr="0" name="">
+            <data_defined_properties>
+              <Option type="Map">
+                <Option type="QString" value="" name="name" />
+                <Option name="properties" />
+                <Option type="QString" value="collection" name="type" />
+              </Option>
+            </data_defined_properties>
+            <layer locked="0" enabled="1" class="SimpleMarker" pass="0" id="{a514a1d8-7345-428e-a5b0-7f24881875dd}">
+              <Option type="Map">
+                <Option type="QString" value="0" name="angle" />
+                <Option type="QString" value="square" name="cap_style" />
+                <Option type="QString" value="232,113,141,255,rgb:0.9098039,0.4431373,0.5529412,1" name="color" />
+                <Option type="QString" value="1" name="horizontal_anchor_point" />
+                <Option type="QString" value="bevel" name="joinstyle" />
+                <Option type="QString" value="diamond" name="name" />
+                <Option type="QString" value="0,0" name="offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="offset_unit" />
+                <Option type="QString" value="166,81,101,255,rgb:0.6498512,0.3165179,0.3949645,1" name="outline_color" />
+                <Option type="QString" value="solid" name="outline_style" />
+                <Option type="QString" value="0.2" name="outline_width" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="outline_width_map_unit_scale" />
+                <Option type="QString" value="MM" name="outline_width_unit" />
+                <Option type="QString" value="diameter" name="scale_method" />
+                <Option type="QString" value="3" name="size" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="size_map_unit_scale" />
+                <Option type="QString" value="MM" name="size_unit" />
+                <Option type="QString" value="1" name="vertical_anchor_point" />
+              </Option>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option type="QString" value="" name="name" />
+                  <Option name="properties" />
+                  <Option type="QString" value="collection" name="type" />
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </profileMarkerSymbol>
+      </elevation>
+      <renderer-v2 forceraster="0" referencescale="-1" symbollevels="0" enableorderby="0" type="singleSymbol">
+        <symbols>
+          <symbol clip_to_extent="1" alpha="1" type="fill" is_animated="0" frame_rate="10" force_rhr="0" name="0">
+            <data_defined_properties>
+              <Option type="Map">
+                <Option type="QString" value="" name="name" />
+                <Option name="properties" />
+                <Option type="QString" value="collection" name="type" />
+              </Option>
+            </data_defined_properties>
+            <layer locked="0" enabled="1" class="SimpleFill" pass="0" id="{7628041f-48dc-4c04-8055-636cad28073f}">
+              <Option type="Map">
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="border_width_map_unit_scale" />
+                <Option type="QString" value="114,118,118,255,hsv:0.51255555555555554,0.04060425726710918,0.46428625925078204,1" name="color" />
+                <Option type="QString" value="bevel" name="joinstyle" />
+                <Option type="QString" value="0,0" name="offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="offset_unit" />
+                <Option type="QString" value="35,35,35,255,rgb:0.1372549,0.1372549,0.1372549,1" name="outline_color" />
+                <Option type="QString" value="solid" name="outline_style" />
+                <Option type="QString" value="0.26" name="outline_width" />
+                <Option type="QString" value="MM" name="outline_width_unit" />
+                <Option type="QString" value="solid" name="style" />
+              </Option>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option type="QString" value="" name="name" />
+                  <Option name="properties" />
+                  <Option type="QString" value="collection" name="type" />
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </symbols>
+        <rotation />
+        <sizescale />
+        <data-defined-properties>
+          <Option type="Map">
+            <Option type="QString" value="" name="name" />
+            <Option name="properties" />
+            <Option type="QString" value="collection" name="type" />
+          </Option>
+        </data-defined-properties>
+      </renderer-v2>
+      <selection mode="Default">
+        <selectionColor invalid="1" />
+        <selectionSymbol>
+          <symbol clip_to_extent="1" alpha="1" type="fill" is_animated="0" frame_rate="10" force_rhr="0" name="">
+            <data_defined_properties>
+              <Option type="Map">
+                <Option type="QString" value="" name="name" />
+                <Option name="properties" />
+                <Option type="QString" value="collection" name="type" />
+              </Option>
+            </data_defined_properties>
+            <layer locked="0" enabled="1" class="SimpleFill" pass="0" id="{6a980227-e7ee-4c0c-a1ab-b4a5fcf346ec}">
+              <Option type="Map">
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="border_width_map_unit_scale" />
+                <Option type="QString" value="0,0,255,255,rgb:0,0,1,1" name="color" />
+                <Option type="QString" value="bevel" name="joinstyle" />
+                <Option type="QString" value="0,0" name="offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="offset_unit" />
+                <Option type="QString" value="35,35,35,255,rgb:0.1372549,0.1372549,0.1372549,1" name="outline_color" />
+                <Option type="QString" value="solid" name="outline_style" />
+                <Option type="QString" value="0.26" name="outline_width" />
+                <Option type="QString" value="MM" name="outline_width_unit" />
+                <Option type="QString" value="solid" name="style" />
+              </Option>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option type="QString" value="" name="name" />
+                  <Option name="properties" />
+                  <Option type="QString" value="collection" name="type" />
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </selectionSymbol>
+      </selection>
+      <customproperties>
+        <Option type="Map">
+          <Option type="int" value="0" name="embeddedWidgets/count" />
+          <Option name="variableNames" />
+          <Option name="variableValues" />
+        </Option>
+      </customproperties>
+      <blendMode>0</blendMode>
+      <featureBlendMode>0</featureBlendMode>
+      <layerOpacity>1</layerOpacity>
+      <geometryOptions removeDuplicateNodes="0" geometryPrecision="0">
+        <activeChecks />
+        <checkConfiguration type="Map">
+          <Option type="Map" name="QgsGeometryGapCheck">
+            <Option type="double" value="0" name="allowedGapsBuffer" />
+            <Option type="bool" value="false" name="allowedGapsEnabled" />
+            <Option type="QString" value="" name="allowedGapsLayer" />
+          </Option>
+        </checkConfiguration>
+      </geometryOptions>
+      <legend showLabelLegend="0" type="default-vector" />
+      <referencedLayers />
+      <referencingLayers />
+      <fieldConfiguration>
+        <field configurationFlags="NoFlag" name="id">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="@id">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="addr:city">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="addr:housenumber">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="addr:postcode">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="addr:state">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="addr:street">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="amenity">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="boat">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="capacity">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="layer">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="name">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="operator">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="operator:wikidata">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="scvwd:FACILITY">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="scvwd:ROUTEID">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="tourism">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="tunnel">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="waterway">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+        <field configurationFlags="NoFlag" name="symbol">
+          <editWidget type="TextEdit">
+            <config>
+              <Option />
+            </config>
+          </editWidget>
+        </field>
+      </fieldConfiguration>
+      <aliases>
+        <alias index="0" field="id" name="" />
+        <alias index="1" field="@id" name="" />
+        <alias index="2" field="addr:city" name="" />
+        <alias index="3" field="addr:housenumber" name="" />
+        <alias index="4" field="addr:postcode" name="" />
+        <alias index="5" field="addr:state" name="" />
+        <alias index="6" field="addr:street" name="" />
+        <alias index="7" field="amenity" name="" />
+        <alias index="8" field="boat" name="" />
+        <alias index="9" field="capacity" name="" />
+        <alias index="10" field="layer" name="" />
+        <alias index="11" field="name" name="" />
+        <alias index="12" field="operator" name="" />
+        <alias index="13" field="operator:wikidata" name="" />
+        <alias index="14" field="scvwd:FACILITY" name="" />
+        <alias index="15" field="scvwd:ROUTEID" name="" />
+        <alias index="16" field="tourism" name="" />
+        <alias index="17" field="tunnel" name="" />
+        <alias index="18" field="waterway" name="" />
+        <alias index="19" field="symbol" name="" />
+      </aliases>
+      <defaults>
+        <default expression="" applyOnUpdate="0" field="id" />
+        <default expression="" applyOnUpdate="0" field="@id" />
+        <default expression="" applyOnUpdate="0" field="addr:city" />
+        <default expression="" applyOnUpdate="0" field="addr:housenumber" />
+        <default expression="" applyOnUpdate="0" field="addr:postcode" />
+        <default expression="" applyOnUpdate="0" field="addr:state" />
+        <default expression="" applyOnUpdate="0" field="addr:street" />
+        <default expression="" applyOnUpdate="0" field="amenity" />
+        <default expression="" applyOnUpdate="0" field="boat" />
+        <default expression="" applyOnUpdate="0" field="capacity" />
+        <default expression="" applyOnUpdate="0" field="layer" />
+        <default expression="" applyOnUpdate="0" field="name" />
+        <default expression="" applyOnUpdate="0" field="operator" />
+        <default expression="" applyOnUpdate="0" field="operator:wikidata" />
+        <default expression="" applyOnUpdate="0" field="scvwd:FACILITY" />
+        <default expression="" applyOnUpdate="0" field="scvwd:ROUTEID" />
+        <default expression="" applyOnUpdate="0" field="tourism" />
+        <default expression="" applyOnUpdate="0" field="tunnel" />
+        <default expression="" applyOnUpdate="0" field="waterway" />
+        <default expression="" applyOnUpdate="0" field="symbol" />
+      </defaults>
+      <constraints>
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="id" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="@id" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="addr:city" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="addr:housenumber" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="addr:postcode" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="addr:state" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="addr:street" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="amenity" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="boat" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="capacity" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="layer" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="name" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="operator" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="operator:wikidata" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="scvwd:FACILITY" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="scvwd:ROUTEID" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="tourism" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="tunnel" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="waterway" />
+        <constraint exp_strength="0" notnull_strength="0" constraints="0" unique_strength="0" field="symbol" />
+      </constraints>
+      <constraintExpressions>
+        <constraint exp="" field="id" desc="" />
+        <constraint exp="" field="@id" desc="" />
+        <constraint exp="" field="addr:city" desc="" />
+        <constraint exp="" field="addr:housenumber" desc="" />
+        <constraint exp="" field="addr:postcode" desc="" />
+        <constraint exp="" field="addr:state" desc="" />
+        <constraint exp="" field="addr:street" desc="" />
+        <constraint exp="" field="amenity" desc="" />
+        <constraint exp="" field="boat" desc="" />
+        <constraint exp="" field="capacity" desc="" />
+        <constraint exp="" field="layer" desc="" />
+        <constraint exp="" field="name" desc="" />
+        <constraint exp="" field="operator" desc="" />
+        <constraint exp="" field="operator:wikidata" desc="" />
+        <constraint exp="" field="scvwd:FACILITY" desc="" />
+        <constraint exp="" field="scvwd:ROUTEID" desc="" />
+        <constraint exp="" field="tourism" desc="" />
+        <constraint exp="" field="tunnel" desc="" />
+        <constraint exp="" field="waterway" desc="" />
+        <constraint exp="" field="symbol" desc="" />
+      </constraintExpressions>
+      <expressionfields />
+      <attributeactions>
+        <defaultAction key="Canvas" value="{00000000-0000-0000-0000-000000000000}" />
+      </attributeactions>
+      <attributetableconfig actionWidgetStyle="dropDown" sortOrder="0" sortExpression="">
+        <columns>
+          <column hidden="0" width="-1" type="field" name="id" />
+          <column hidden="0" width="-1" type="field" name="@id" />
+          <column hidden="0" width="-1" type="field" name="addr:city" />
+          <column hidden="0" width="-1" type="field" name="addr:housenumber" />
+          <column hidden="0" width="-1" type="field" name="addr:postcode" />
+          <column hidden="0" width="-1" type="field" name="addr:state" />
+          <column hidden="0" width="-1" type="field" name="addr:street" />
+          <column hidden="0" width="-1" type="field" name="amenity" />
+          <column hidden="0" width="-1" type="field" name="boat" />
+          <column hidden="0" width="-1" type="field" name="capacity" />
+          <column hidden="0" width="-1" type="field" name="layer" />
+          <column hidden="0" width="-1" type="field" name="name" />
+          <column hidden="0" width="-1" type="field" name="operator" />
+          <column hidden="0" width="-1" type="field" name="operator:wikidata" />
+          <column hidden="0" width="-1" type="field" name="scvwd:FACILITY" />
+          <column hidden="0" width="-1" type="field" name="scvwd:ROUTEID" />
+          <column hidden="0" width="-1" type="field" name="tourism" />
+          <column hidden="0" width="-1" type="field" name="tunnel" />
+          <column hidden="0" width="-1" type="field" name="waterway" />
+          <column hidden="0" width="-1" type="field" name="symbol" />
+          <column hidden="1" width="-1" type="actions" />
+        </columns>
+      </attributetableconfig>
+      <conditionalstyles>
+        <rowstyles />
+        <fieldstyles />
+      </conditionalstyles>
+      <storedexpressions />
+      <editform tolerant="1" />
+      <editforminit />
+      <editforminitcodesource>0</editforminitcodesource>
+      <editforminitfilepath />
+      <editforminitcode># -*- coding: utf-8 -*-
+"""
+QGIS forms can have a Python function that is called when the form is
+opened.
+
+Use this function to add extra logic to your forms.
+
+Enter the name of the function in the "Python Init function"
+field.
+An example follows:
+"""
+from qgis.PyQt.QtWidgets import QWidget
+
+def my_form_open(dialog, layer, feature):
+    geom = feature.geometry()
+    control = dialog.findChild(QWidget, "MyLineEdit")
+</editforminitcode>
+      <featformsuppress>0</featformsuppress>
+      <editorlayout>generatedlayout</editorlayout>
+      <editable>
+        <field editable="1" name="@id" />
+        <field editable="1" name="addr:city" />
+        <field editable="1" name="addr:housenumber" />
+        <field editable="1" name="addr:postcode" />
+        <field editable="1" name="addr:state" />
+        <field editable="1" name="addr:street" />
+        <field editable="1" name="amenity" />
+        <field editable="1" name="boat" />
+        <field editable="1" name="capacity" />
+        <field editable="1" name="id" />
+        <field editable="1" name="layer" />
+        <field editable="1" name="name" />
+        <field editable="1" name="operator" />
+        <field editable="1" name="operator:wikidata" />
+        <field editable="1" name="scvwd:FACILITY" />
+        <field editable="1" name="scvwd:ROUTEID" />
+        <field editable="1" name="symbol" />
+        <field editable="1" name="tourism" />
+        <field editable="1" name="tunnel" />
+        <field editable="1" name="waterway" />
+      </editable>
+      <labelOnTop>
+        <field labelOnTop="0" name="@id" />
+        <field labelOnTop="0" name="addr:city" />
+        <field labelOnTop="0" name="addr:housenumber" />
+        <field labelOnTop="0" name="addr:postcode" />
+        <field labelOnTop="0" name="addr:state" />
+        <field labelOnTop="0" name="addr:street" />
+        <field labelOnTop="0" name="amenity" />
+        <field labelOnTop="0" name="boat" />
+        <field labelOnTop="0" name="capacity" />
+        <field labelOnTop="0" name="id" />
+        <field labelOnTop="0" name="layer" />
+        <field labelOnTop="0" name="name" />
+        <field labelOnTop="0" name="operator" />
+        <field labelOnTop="0" name="operator:wikidata" />
+        <field labelOnTop="0" name="scvwd:FACILITY" />
+        <field labelOnTop="0" name="scvwd:ROUTEID" />
+        <field labelOnTop="0" name="symbol" />
+        <field labelOnTop="0" name="tourism" />
+        <field labelOnTop="0" name="tunnel" />
+        <field labelOnTop="0" name="waterway" />
+      </labelOnTop>
+      <reuseLastValue>
+        <field reuseLastValue="0" name="@id" />
+        <field reuseLastValue="0" name="addr:city" />
+        <field reuseLastValue="0" name="addr:housenumber" />
+        <field reuseLastValue="0" name="addr:postcode" />
+        <field reuseLastValue="0" name="addr:state" />
+        <field reuseLastValue="0" name="addr:street" />
+        <field reuseLastValue="0" name="amenity" />
+        <field reuseLastValue="0" name="boat" />
+        <field reuseLastValue="0" name="capacity" />
+        <field reuseLastValue="0" name="id" />
+        <field reuseLastValue="0" name="layer" />
+        <field reuseLastValue="0" name="name" />
+        <field reuseLastValue="0" name="operator" />
+        <field reuseLastValue="0" name="operator:wikidata" />
+        <field reuseLastValue="0" name="scvwd:FACILITY" />
+        <field reuseLastValue="0" name="scvwd:ROUTEID" />
+        <field reuseLastValue="0" name="symbol" />
+        <field reuseLastValue="0" name="tourism" />
+        <field reuseLastValue="0" name="tunnel" />
+        <field reuseLastValue="0" name="waterway" />
+      </reuseLastValue>
+      <dataDefinedFieldProperties />
+      <widgets />
+      <previewExpression>"name"</previewExpression>
+      <mapTip enabled="1" />
+    </maplayer>
+    

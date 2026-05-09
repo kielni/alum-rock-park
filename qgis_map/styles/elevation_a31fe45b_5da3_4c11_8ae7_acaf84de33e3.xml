@@ -1,0 +1,219 @@
+<maplayer styleCategories="AllStyleCategories" minScale="1e+08" refreshOnNotifyMessage="" maxScale="0" type="raster" autoRefreshMode="Disabled" autoRefreshTime="0" hasScaleBasedVisibilityFlag="0" legendPlaceholderImage="" refreshOnNotifyEnabled="0">
+      <extent>
+        <xmin>-122.00055555599357149</xmin>
+        <ymin>36.99944444370704844</ymin>
+        <xmax>-120.9994444438054586</xmax>
+        <ymax>38.00055555589506184</ymax>
+      </extent>
+      <wgs84extent>
+        <xmin>-122.00055555599357149</xmin>
+        <ymin>36.99944444370704844</ymin>
+        <xmax>-120.9994444438054586</xmax>
+        <ymax>38.00055555589506184</ymax>
+      </wgs84extent>
+      <id>elevation_a31fe45b_5da3_4c11_8ae7_acaf84de33e3</id>
+      <datasource>./elevation.tif</datasource>
+      <layername>elevation-import</layername>
+      <srs>
+        <spatialrefsys nativeFormat="Wkt">
+          <wkt>GEOGCRS["NAD83",DATUM["North American Datum 1983",ELLIPSOID["GRS 1980",6378137,298.257222101,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],CS[ellipsoidal,2],AXIS["geodetic latitude (Lat)",north,ORDER[1],ANGLEUNIT["degree",0.0174532925199433]],AXIS["geodetic longitude (Lon)",east,ORDER[2],ANGLEUNIT["degree",0.0174532925199433]],USAGE[SCOPE["Geodesy."],AREA["North America - onshore and offshore: Canada - Alberta; British Columbia; Manitoba; New Brunswick; Newfoundland and Labrador; Northwest Territories; Nova Scotia; Nunavut; Ontario; Prince Edward Island; Quebec; Saskatchewan; Yukon. Puerto Rico. United States (USA) - Alabama; Alaska; Arizona; Arkansas; California; Colorado; Connecticut; Delaware; Florida; Georgia; Hawaii; Idaho; Illinois; Indiana; Iowa; Kansas; Kentucky; Louisiana; Maine; Maryland; Massachusetts; Michigan; Minnesota; Mississippi; Missouri; Montana; Nebraska; Nevada; New Hampshire; New Jersey; New Mexico; New York; North Carolina; North Dakota; Ohio; Oklahoma; Oregon; Pennsylvania; Rhode Island; South Carolina; South Dakota; Tennessee; Texas; Utah; Vermont; Virginia; Washington; West Virginia; Wisconsin; Wyoming. US Virgin Islands. British Virgin Islands."],BBOX[14.92,167.65,86.45,-40.73]],ID["EPSG",4269]]</wkt>
+          <proj4>+proj=longlat +datum=NAD83 +no_defs</proj4>
+          <srsid>3401</srsid>
+          <srid>4269</srid>
+          <authid>EPSG:4269</authid>
+          <description>NAD83</description>
+          <projectionacronym>longlat</projectionacronym>
+          <ellipsoidacronym>EPSG:7019</ellipsoidacronym>
+          <geographicflag>true</geographicflag>
+        </spatialrefsys>
+      </srs>
+      <resourceMetadata>
+        <identifier />
+        <parentidentifier />
+        <language />
+        <type>dataset</type>
+        <title />
+        <abstract />
+        <links />
+        <dates />
+        <fees />
+        <encoding />
+        <crs>
+          <spatialrefsys nativeFormat="Wkt">
+            <wkt>GEOGCRS["NAD83",DATUM["North American Datum 1983",ELLIPSOID["GRS 1980",6378137,298.257222101,LENGTHUNIT["metre",1]]],PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],CS[ellipsoidal,2],AXIS["geodetic latitude (Lat)",north,ORDER[1],ANGLEUNIT["degree",0.0174532925199433]],AXIS["geodetic longitude (Lon)",east,ORDER[2],ANGLEUNIT["degree",0.0174532925199433]],USAGE[SCOPE["Geodesy."],AREA["North America - onshore and offshore: Canada - Alberta; British Columbia; Manitoba; New Brunswick; Newfoundland and Labrador; Northwest Territories; Nova Scotia; Nunavut; Ontario; Prince Edward Island; Quebec; Saskatchewan; Yukon. Puerto Rico. United States (USA) - Alabama; Alaska; Arizona; Arkansas; California; Colorado; Connecticut; Delaware; Florida; Georgia; Hawaii; Idaho; Illinois; Indiana; Iowa; Kansas; Kentucky; Louisiana; Maine; Maryland; Massachusetts; Michigan; Minnesota; Mississippi; Missouri; Montana; Nebraska; Nevada; New Hampshire; New Jersey; New Mexico; New York; North Carolina; North Dakota; Ohio; Oklahoma; Oregon; Pennsylvania; Rhode Island; South Carolina; South Dakota; Tennessee; Texas; Utah; Vermont; Virginia; Washington; West Virginia; Wisconsin; Wyoming. US Virgin Islands. British Virgin Islands."],BBOX[14.92,167.65,86.45,-40.73]],ID["EPSG",4269]]</wkt>
+            <proj4>+proj=longlat +datum=NAD83 +no_defs</proj4>
+            <srsid>3401</srsid>
+            <srid>4269</srid>
+            <authid>EPSG:4269</authid>
+            <description>NAD83</description>
+            <projectionacronym>longlat</projectionacronym>
+            <ellipsoidacronym>EPSG:7019</ellipsoidacronym>
+            <geographicflag>true</geographicflag>
+          </spatialrefsys>
+        </crs>
+        <extent />
+      </resourceMetadata>
+      <provider>gdal</provider>
+      <noData>
+        <noDataList useSrcNoData="1" bandNo="1" />
+      </noData>
+      <map-layer-style-manager current="default">
+        <map-layer-style name="default" />
+      </map-layer-style-manager>
+      <flags>
+        <Identifiable>1</Identifiable>
+        <Removable>1</Removable>
+        <Searchable>0</Searchable>
+        <Private>0</Private>
+      </flags>
+      <temporal fetchMode="0" enabled="0" bandNumber="1" mode="0">
+        <fixedRange>
+          <start />
+          <end />
+        </fixedRange>
+      </temporal>
+      <elevation enabled="1" zoffset="0" mode="RepresentsElevationSurface" zscale="1" band="1" symbology="Line">
+        <data-defined-properties>
+          <Option type="Map">
+            <Option type="QString" value="" name="name" />
+            <Option name="properties" />
+            <Option type="QString" value="collection" name="type" />
+          </Option>
+        </data-defined-properties>
+        <profileLineSymbol>
+          <symbol clip_to_extent="1" alpha="1" type="line" is_animated="0" frame_rate="10" force_rhr="0" name="">
+            <data_defined_properties>
+              <Option type="Map">
+                <Option type="QString" value="" name="name" />
+                <Option name="properties" />
+                <Option type="QString" value="collection" name="type" />
+              </Option>
+            </data_defined_properties>
+            <layer locked="0" enabled="1" class="SimpleLine" pass="0" id="{4983959e-4748-44a0-ab9c-64569ca891c1}">
+              <Option type="Map">
+                <Option type="QString" value="0" name="align_dash_pattern" />
+                <Option type="QString" value="square" name="capstyle" />
+                <Option type="QString" value="5;2" name="customdash" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="customdash_map_unit_scale" />
+                <Option type="QString" value="MM" name="customdash_unit" />
+                <Option type="QString" value="0" name="dash_pattern_offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="dash_pattern_offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="dash_pattern_offset_unit" />
+                <Option type="QString" value="0" name="draw_inside_polygon" />
+                <Option type="QString" value="bevel" name="joinstyle" />
+                <Option type="QString" value="255,158,23,255,rgb:1,0.6196078,0.0901961,1" name="line_color" />
+                <Option type="QString" value="solid" name="line_style" />
+                <Option type="QString" value="0.6" name="line_width" />
+                <Option type="QString" value="MM" name="line_width_unit" />
+                <Option type="QString" value="0" name="offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="offset_unit" />
+                <Option type="QString" value="0" name="ring_filter" />
+                <Option type="QString" value="0" name="trim_distance_end" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="trim_distance_end_map_unit_scale" />
+                <Option type="QString" value="MM" name="trim_distance_end_unit" />
+                <Option type="QString" value="0" name="trim_distance_start" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="trim_distance_start_map_unit_scale" />
+                <Option type="QString" value="MM" name="trim_distance_start_unit" />
+                <Option type="QString" value="0" name="tweak_dash_pattern_on_corners" />
+                <Option type="QString" value="0" name="use_custom_dash" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="width_map_unit_scale" />
+              </Option>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option type="QString" value="" name="name" />
+                  <Option name="properties" />
+                  <Option type="QString" value="collection" name="type" />
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </profileLineSymbol>
+        <profileFillSymbol>
+          <symbol clip_to_extent="1" alpha="1" type="fill" is_animated="0" frame_rate="10" force_rhr="0" name="">
+            <data_defined_properties>
+              <Option type="Map">
+                <Option type="QString" value="" name="name" />
+                <Option name="properties" />
+                <Option type="QString" value="collection" name="type" />
+              </Option>
+            </data_defined_properties>
+            <layer locked="0" enabled="1" class="SimpleFill" pass="0" id="{322c4180-d1e5-491f-8764-bcc53e7460b2}">
+              <Option type="Map">
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="border_width_map_unit_scale" />
+                <Option type="QString" value="255,158,23,255,rgb:1,0.6196078,0.0901961,1" name="color" />
+                <Option type="QString" value="bevel" name="joinstyle" />
+                <Option type="QString" value="0,0" name="offset" />
+                <Option type="QString" value="3x:0,0,0,0,0,0" name="offset_map_unit_scale" />
+                <Option type="QString" value="MM" name="offset_unit" />
+                <Option type="QString" value="35,35,35,255,rgb:0.1372549,0.1372549,0.1372549,1" name="outline_color" />
+                <Option type="QString" value="no" name="outline_style" />
+                <Option type="QString" value="0.26" name="outline_width" />
+                <Option type="QString" value="MM" name="outline_width_unit" />
+                <Option type="QString" value="solid" name="style" />
+              </Option>
+              <data_defined_properties>
+                <Option type="Map">
+                  <Option type="QString" value="" name="name" />
+                  <Option name="properties" />
+                  <Option type="QString" value="collection" name="type" />
+                </Option>
+              </data_defined_properties>
+            </layer>
+          </symbol>
+        </profileFillSymbol>
+      </elevation>
+      <customproperties>
+        <Option type="Map">
+          <Option type="QString" value="Value" name="identify/format" />
+        </Option>
+      </customproperties>
+      <mapTip enabled="1" />
+      <pipe-data-defined-properties>
+        <Option type="Map">
+          <Option type="QString" value="" name="name" />
+          <Option name="properties" />
+          <Option type="QString" value="collection" name="type" />
+        </Option>
+      </pipe-data-defined-properties>
+      <pipe>
+        <provider>
+          <resampling maxOversampling="2" enabled="false" zoomedInResamplingMethod="nearestNeighbour" zoomedOutResamplingMethod="nearestNeighbour" />
+        </provider>
+        <rasterrenderer grayBand="1" gradient="BlackToWhite" nodataColor="" alphaBand="-1" type="singlebandgray" opacity="1">
+          <rasterTransparency />
+          <minMaxOrigin>
+            <limits>MinMax</limits>
+            <extent>WholeRaster</extent>
+            <statAccuracy>Estimated</statAccuracy>
+            <cumulativeCutLower>0.02</cumulativeCutLower>
+            <cumulativeCutUpper>0.98</cumulativeCutUpper>
+            <stdDevFactor>2</stdDevFactor>
+          </minMaxOrigin>
+          <contrastEnhancement>
+            <minValue>-6.7921757698059</minValue>
+            <maxValue>1335.2055664062</maxValue>
+            <algorithm>StretchToMinimumMaximum</algorithm>
+          </contrastEnhancement>
+          <rampLegendSettings orientation="2" minimumLabel="" maximumLabel="" suffix="" direction="0" useContinuousLegend="1" prefix="">
+            <numericFormat id="basic">
+              <Option type="Map">
+                <Option type="invalid" name="decimal_separator" />
+                <Option type="int" value="6" name="decimals" />
+                <Option type="int" value="0" name="rounding_type" />
+                <Option type="bool" value="false" name="show_plus" />
+                <Option type="bool" value="true" name="show_thousand_separator" />
+                <Option type="bool" value="false" name="show_trailing_zeros" />
+                <Option type="invalid" name="thousand_separator" />
+              </Option>
+            </numericFormat>
+          </rampLegendSettings>
+        </rasterrenderer>
+        <brightnesscontrast gamma="1" contrast="0" brightness="0" />
+        <huesaturation colorizeRed="255" colorizeGreen="128" invertColors="0" colorizeOn="0" grayscaleMode="0" saturation="0" colorizeStrength="100" colorizeBlue="128" />
+        <rasterresampler maxOversampling="2" />
+        <resamplingStage>resamplingFilter</resamplingStage>
+      </pipe>
+      <blendMode>0</blendMode>
+    </maplayer>
+    

@@ -1,0 +1,145 @@
+{
+  "title": "",
+  "crs": "EPSG:26910",
+  "layers": [
+    {
+      "id": "park_polygon_79a2c908_743e_4487_8610_5394c848a975",
+      "name": "park_polygon",
+      "type": "vector",
+      "source": "/Users/kimberly/home/alum-rock-park/park_polygon.geojson",
+      "provider": "ogr",
+      "style_xml": "styles/park_polygon_79a2c908_743e_4487_8610_5394c848a975.xml",
+      "crs": "EPSG:4326",
+      "visible": true,
+      "extra": {}
+    },
+    {
+      "id": "Unique_values_table_c9ffc358_034f_4b45_96c0_52c4487b5dbf",
+      "name": "Unique values table",
+      "type": "vector",
+      "source": "memory?geometry=NoGeometry&crs=EPSG:4326&field=value:double(20,8)&field=count:int8(20,0)&field=m2:double(20,8)",
+      "provider": "memory",
+      "style_xml": "styles/Unique_values_table_c9ffc358_034f_4b45_96c0_52c4487b5dbf.xml",
+      "crs": null,
+      "visible": true,
+      "extra": {}
+    },
+    {
+      "id": "OUTPUT_fdaea737_5f3c_4529_9011_b792ebfc3a2f",
+      "name": "Slope",
+      "type": "raster",
+      "source": "/private/var/folders/6q/17f_ht2n2yq_3wjgfgcwpd400000gn/T/processing_gLvpzd/6b61cd8502d14248bead4e278778792d/OUTPUT.tif",
+      "provider": "gdal",
+      "style_xml": "styles/OUTPUT_fdaea737_5f3c_4529_9011_b792ebfc3a2f.xml",
+      "crs": "EPSG:26910",
+      "visible": false,
+      "extra": {}
+    },
+    {
+      "id": "OUTPUT_210bc5f4_0711_416e_b55e_bab28f8266f2",
+      "name": "elevation-10N",
+      "type": "raster",
+      "source": "/private/var/folders/6q/17f_ht2n2yq_3wjgfgcwpd400000gn/T/processing_gLvpzd/5f93d8fd15fc45adb8af508548e1125c/OUTPUT.tif",
+      "provider": "gdal",
+      "style_xml": "styles/OUTPUT_210bc5f4_0711_416e_b55e_bab28f8266f2.xml",
+      "crs": "EPSG:26910",
+      "visible": false,
+      "extra": {}
+    },
+    {
+      "id": "ARP_areas_a576561d_2e70_40e3_9bbb_4f5cd5227aff",
+      "name": "ARP_areas",
+      "type": "vector",
+      "source": "/Users/kimberly/home/alum-rock-park/ARP_areas.geojson",
+      "provider": "ogr",
+      "style_xml": "styles/ARP_areas_a576561d_2e70_40e3_9bbb_4f5cd5227aff.xml",
+      "crs": "EPSG:4326",
+      "visible": true,
+      "extra": {}
+    },
+    {
+      "id": "park_features_symbol_b60436ff_5344_44cc_aa2e_1d72158b1262",
+      "name": "park_features_symbol",
+      "type": "vector",
+      "source": "/Users/kimberly/home/alum-rock-park/park_features_symbol.geojson|geometrytype=Point",
+      "provider": "ogr",
+      "style_xml": "styles/park_features_symbol_b60436ff_5344_44cc_aa2e_1d72158b1262.xml",
+      "crs": "EPSG:4326",
+      "visible": true,
+      "extra": {}
+    },
+    {
+      "id": "park_features_symbol_c8ac775e_1044_4c6b_b2fd_8cc056f37966",
+      "name": "park_features_symbol",
+      "type": "vector",
+      "source": "/Users/kimberly/home/alum-rock-park/park_features_symbol.geojson|geometrytype=LineString",
+      "provider": "ogr",
+      "style_xml": "styles/park_features_symbol_c8ac775e_1044_4c6b_b2fd_8cc056f37966.xml",
+      "crs": "EPSG:4326",
+      "visible": true,
+      "extra": {}
+    },
+    {
+      "id": "park_features_symbol_066caa31_d52c_4a88_9c6f_1496a58e5d94",
+      "name": "park_features_symbol",
+      "type": "vector",
+      "source": "/Users/kimberly/home/alum-rock-park/park_features_symbol.geojson|geometrytype=Polygon",
+      "provider": "ogr",
+      "style_xml": "styles/park_features_symbol_066caa31_d52c_4a88_9c6f_1496a58e5d94.xml",
+      "crs": "EPSG:4326",
+      "visible": true,
+      "extra": {}
+    },
+    {
+      "id": "OUTPUT_c6f3a323_6393_4564_8263_7c02f4c71b58",
+      "name": "ARP slope",
+      "type": "raster",
+      "source": "/private/var/folders/6q/17f_ht2n2yq_3wjgfgcwpd400000gn/T/processing_gLvpzd/0f6bc563c2174df0b07d9a5570334be0/OUTPUT.tif",
+      "provider": "gdal",
+      "style_xml": "styles/OUTPUT_c6f3a323_6393_4564_8263_7c02f4c71b58.xml",
+      "crs": "EPSG:26910",
+      "visible": true,
+      "extra": {}
+    },
+    {
+      "id": "_371da93b_47f3_4e0e_8d50_dd685cde3c1d",
+      "name": "CartoDB Positron",
+      "type": "raster",
+      "source": "http-header:referer=&type=xyz&url=https://basemaps.cartocdn.com/light_all/%7Bz%7D/%7Bx%7D/%7By%7D.png&zmax=19&zmin=0",
+      "provider": "wms",
+      "style_xml": "styles/_371da93b_47f3_4e0e_8d50_dd685cde3c1d.xml",
+      "crs": "EPSG:3857",
+      "visible": true,
+      "extra": {}
+    },
+    {
+      "id": "_00a6df1f_8c46_426e_b957_bae1a9a3639f",
+      "name": "ESRI satellite",
+      "type": "raster",
+      "source": "http-header:referer=&type=xyz&url=https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/%7Bz%7D/%7By%7D/%7Bx%7D&zmax=18&zmin=0",
+      "provider": "wms",
+      "style_xml": "styles/_00a6df1f_8c46_426e_b957_bae1a9a3639f.xml",
+      "crs": "EPSG:3857",
+      "visible": false,
+      "extra": {}
+    },
+    {
+      "id": "elevation_a31fe45b_5da3_4c11_8ae7_acaf84de33e3",
+      "name": "elevation-import",
+      "type": "raster",
+      "source": "/Users/kimberly/home/alum-rock-park/elevation.tif",
+      "provider": "gdal",
+      "style_xml": "styles/elevation_a31fe45b_5da3_4c11_8ae7_acaf84de33e3.xml",
+      "crs": "EPSG:4269",
+      "visible": false,
+      "extra": {}
+    }
+  ],
+  "extent": [
+    605148.0975601125,
+    4139304.783319104,
+    605845.1453876096,
+    4140093.2879730943
+  ],
+  "extra": {}
+}

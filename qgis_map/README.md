@@ -1,13 +1,19 @@
-# qgis-project
+# qgis_map
 
 QGIS project managed as code. Pydantic models in Python serialize to JSON;
 a build script renders a `.qgs` file that QGIS opens as a viewer. See
 [DESIGN.md](DESIGN.md) for the architecture and rationale.
 
+## Python setup
+
+```bash
+uv sync
+```
+
 ## Quick start
 
 ```bash
-# one-time: import an existing .qgz into the repo
+# import an existing .qgz
 make dump SRC=path/to/existing.qgz
 
 # build the .qgs from project.py
@@ -38,8 +44,21 @@ implemented).
 
 ## Requirements
 
-- QGIS 3.x with PyQGIS
-- Python 3.11+
-- `pip install pydantic`
+- QGIS 3.x desktop app at `/Applications/QGIS.app`
+- [uv](https://docs.astral.sh/uv/)
 
-PyQGIS standalone setup is OS-specific; see the Makefile.
+### QGIS reload shortcut
+
+Bind Ctrl-R to reload the current project from disk:
+
+`Settings → Keyboard Shortcuts`, search for "Revert", assign Ctrl+R.
+
+Used after every `make build` to pick up changes to `build/project.qgs`.
+
+### QGIS plugins
+
+Install via `Plugins → Manage and Install Plugins`:
+
+- **Reloader** (optional) — watches individual data files and auto-reloads
+  affected layers when bytes change on disk. Useful once derived data
+  (transforms) is in the workflow; not needed for v1.
