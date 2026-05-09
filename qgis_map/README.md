@@ -1,8 +1,24 @@
 # qgis_map
 
-QGIS project managed as code. Pydantic models in Python serialize to JSON;
+QGIS projects managed as code. Pydantic models in Python serialize to JSON;
 a build script renders a `.qgs` file that QGIS opens as a viewer. See
 [DESIGN.md](DESIGN.md) for the architecture and rationale.
+
+## Layout
+
+```
+qgis_map/
+  models.py          — Pydantic types for layers, renderers, symbols
+  dump.py            — import a .qgz into a project directory
+  render.py          — render project.py → build/project.qgs
+  build.py           — entry point with incremental rebuild
+
+  alum_rock_slope/   — one directory per project
+    project.py       — source of truth (edit this)
+    project.json     — committed artifact, used for diffs
+    styles/          — per-layer XML extracted from the .qgz
+    build/           — generated .qgs (gitignored)
+```
 
 ## Python setup
 
@@ -10,37 +26,30 @@ a build script renders a `.qgs` file that QGIS opens as a viewer. See
 uv sync
 ```
 
-## Quick start
+## Quick start: Alum Rock Park
 
 ```bash
-# import an existing .qgz
-make dump SRC=path/to/existing.qgz
+# import arp.qgz into alum_rock_slope/
+make dump-arp
 
-# build the .qgs from project.py
-make build
+# render alum_rock_slope/project.py → alum_rock_slope/build/project.qgs
+make build-arp
 
-# open in QGIS, then reload with Ctrl-R after rebuilds
+# open alum_rock_slope/build/project.qgs in QGIS
+# after rebuilds, reload with Ctrl-R
 ```
 
-## Layout
+## Adding a new project
 
-- `project.py` — source of truth (Pydantic ProjectSpec instance)
-- `project.json` — committed build artifact, used for diffs
-- `styles/` — `.qml` style files, committed as opaque blobs
-- `data/` — raw input data
-- `src/` — models, dump, render
-- `build/` — generated `.qgs` (gitignored)
+```bash
+make dump SRC=path/to/file.qgz DIR=my_project
+make build DIR=my_project
+```
 
 ## Workflow
 
-Edit `project.py` in your IDE. Run `make build`. Reload in QGIS. Commit.
-
-For symbology, edit in QGIS UI → Save Style → overwrites the `.qml` in
-`styles/`. Commit the `.qml`.
-
-For Processing algorithms (slope, hillshade, etc.), copy the snippet from
-QGIS's `Processing → History` and translate to a TransformSpec (not yet
-implemented).
+Edit `project.py` in your IDE. Run `make build-arp` (or `make build DIR=...`).
+Reload in QGIS. Commit `project.py`, `project.json`, and any changed `styles/`.
 
 ## Requirements
 
@@ -53,12 +62,9 @@ Bind Ctrl-R to reload the current project from disk:
 
 `Settings → Keyboard Shortcuts`, search for "Revert", assign Ctrl+R.
 
-Used after every `make build` to pick up changes to `build/project.qgs`.
-
 ### QGIS plugins
 
 Install via `Plugins → Manage and Install Plugins`:
 
 - **Reloader** (optional) — watches individual data files and auto-reloads
-  affected layers when bytes change on disk. Useful once derived data
-  (transforms) is in the workflow; not needed for v1.
+  affected layers when bytes change on disk.

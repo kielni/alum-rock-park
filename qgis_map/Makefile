@@ -1,38 +1,32 @@
 # Makefile for qgis-project (macOS only)
+# Copy local.env.example to local.env and set QGIS before use.
 
-QGIS     := /Applications/QGIS.app
-QGIS_ENV := QGIS_PREFIX_PATH=$(QGIS)/Contents/MacOS \
-             DYLD_FRAMEWORK_PATH=$(QGIS)/Contents/Frameworks \
-             DYLD_LIBRARY_PATH=$(QGIS)/Contents/Frameworks \
-             QT_QPA_PLATFORM=offscreen
+-include local.env
 
-RUN      := $(QGIS_ENV) uv run python
-ARP_QGZ  := ../arp.qgz
+RUN := uv run python
 
-.PHONY: help dump dump-arp build lint clean
+.PHONY: help dump build lint clean
 
 help:
 	@echo "Targets:"
-	@echo "  make dump-arp           - import arp.qgz into source"
-	@echo "  make dump SRC=file.qgz  - import an arbitrary .qgz into source"
-	@echo "  make build              - render project.py to build/project.qgs"
-	@echo "  make lint               - run black and flake8"
-	@echo "  make clean              - remove build/ artifacts"
-
-dump-arp:
-	$(RUN) -m src.dump $(ARP_QGZ)
+	@echo "  make dump QGZ=path/to/file.qgz DIR=project_dir"
+	@echo "  make build DIR=project_dir"
+	@echo "  make lint"
+	@echo "  make clean DIR=project_dir"
 
 dump:
-	@if [ -z "$(SRC)" ]; then echo "Usage: make dump SRC=path/to/file.qgz"; exit 1; fi
-	$(RUN) -m src.dump $(SRC)
+	@if [ -z "$(QGZ)" ] || [ -z "$(DIR)" ]; then \
+		echo "Usage: make dump QGZ=path/to/file.qgz DIR=project_dir"; exit 1; fi
+	$(RUN) -m dump $(QGZ) $(DIR)
 
 build:
-	mkdir -p build
-	$(RUN) build.py
+	@if [ -z "$(DIR)" ]; then echo "Usage: make build DIR=project_dir"; exit 1; fi
+	$(RUN) build.py $(DIR)
 
 lint:
-	uv run black src/ build.py project.py
-	uv run flake8 src/ build.py
+	uv run black models.py dump.py render.py build.py
+	uv run flake8 models.py dump.py render.py build.py
 
 clean:
-	rm -rf build/
+	@if [ -z "$(DIR)" ]; then echo "Usage: make clean DIR=project_dir"; exit 1; fi
+	rm -rf $(DIR)/build/

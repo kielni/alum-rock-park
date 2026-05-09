@@ -1,50 +1,57 @@
-"""Entry point: render project.py → build/project.qgs with incremental rebuild."""
+"""Entry point: render <project_dir>/project.py → <project_dir>/build/project.qgs."""
 
 import hashlib
 import sys
 from pathlib import Path
 
-HERE = Path(__file__).parent
-STATE_FILE = HERE / "build" / ".state"
-PROJECT_PY = HERE / "project.py"
+HERE = Path(__file__).parent  # qgis_map/
 
 
 def _hash_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _needs_rebuild() -> bool:
-    if not (HERE / "build" / "project.qgs").exists():
+def _needs_rebuild(project_dir: Path) -> bool:
+    project_py = project_dir / "project.py"
+    state_file = project_dir / "build" / ".state"
+    if not (project_dir / "build" / "project.qgs").exists():
         return True
-    if not STATE_FILE.exists():
+    if not state_file.exists():
         return True
-    if not PROJECT_PY.exists():
+    if not project_py.exists():
         return True
-    return STATE_FILE.read_text().strip() != _hash_file(PROJECT_PY)
+    return state_file.read_text().strip() != _hash_file(project_py)
 
 
 def main() -> None:
     force = "--force" in sys.argv
-
-    if not PROJECT_PY.exists():
-        print("project.py not found — run 'make dump SRC=...' first")
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if not args:
+        print("Usage: python build.py <project_dir> [--force]")
         sys.exit(1)
 
-    if not force and not _needs_rebuild():
+    project_dir = (HERE / args[0]).resolve()
+    project_py = project_dir / "project.py"
+
+    if not project_py.exists():
+        print(f"project.py not found in {project_dir} — run 'make dump-arp' first")
+        sys.exit(1)
+
+    if not force and not _needs_rebuild(project_dir):
         print("project.qgs is up to date")
         return
 
-    # Add qgis_map/ to sys.path so `from src.models import ...` works
     if str(HERE) not in sys.path:
         sys.path.insert(0, str(HERE))
 
-    from src.render import _load_spec, render
+    from render import _load_spec, render
 
-    spec = _load_spec()
-    render(spec)
+    spec = _load_spec(project_dir)
+    render(spec, project_dir)
 
-    STATE_FILE.parent.mkdir(exist_ok=True)
-    STATE_FILE.write_text(_hash_file(PROJECT_PY))
+    state_file = project_dir / "build" / ".state"
+    state_file.parent.mkdir(exist_ok=True)
+    state_file.write_text(_hash_file(project_py))
 
 
 if __name__ == "__main__":

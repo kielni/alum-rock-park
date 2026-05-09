@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from src.models import (
+from models import (
     Layer,
     Project,
     Renderer,
@@ -27,8 +27,7 @@ from src.models import (
     SymbolLayer,
 )
 
-HERE = Path(__file__).parent.parent  # qgis_map/
-STYLES = HERE / "styles"
+HERE = Path(__file__).parent  # qgis_map/ — used for resolving data source paths
 
 # ── XML helpers ───────────────────────────────────────────────────────────────
 
@@ -225,11 +224,11 @@ def _py_repr(val: Any) -> str:
     return repr(val)
 
 
-def _write_project_py(spec: Project) -> None:
+def _write_project_py(spec: Project, project_dir: Path) -> None:
     lines = [
         "from pathlib import Path",
         "",
-        f"from src.models import {_STYLE_IMPORTS}",
+        f"from models import {_STYLE_IMPORTS}",
         "",
         "spec = Project(",
         f"    title={spec.title!r},",
@@ -259,13 +258,13 @@ def _write_project_py(spec: Project) -> None:
             lines.append(renderer_line)
         lines.append("        ),")
     lines += ["    ],", ")", ""]
-    (HERE / "project.py").write_text("\n".join(lines))
+    (project_dir / "project.py").write_text("\n".join(lines))
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 
-def _build_spec(root: ET.Element, qgz_dir: Path) -> Project:
+def _build_spec(root: ET.Element, qgz_dir: Path, project_dir: Path) -> Project:
     title = root.findtext("title") or ""
     project_crs = _authid(root.find("projectCrs/spatialrefsys")) or ""
 
@@ -298,7 +297,8 @@ def _build_spec(root: ET.Element, qgz_dir: Path) -> Project:
         ml.findtext("id"): ml for ml in root.findall(".//maplayer") if ml.findtext("id")
     }
 
-    STYLES.mkdir(exist_ok=True)
+    styles_dir = project_dir / "styles"
+    styles_dir.mkdir(parents=True, exist_ok=True)
     layers: list[Layer] = []
 
     for lid in tree_order:
@@ -306,7 +306,7 @@ def _build_spec(root: ET.Element, qgz_dir: Path) -> Project:
         if ml is None:
             continue
 
-        style_path = STYLES / f"{lid}.xml"
+        style_path = styles_dir / f"{lid}.xml"
         style_path.write_text(ET.tostring(ml, encoding="unicode"))
 
         src_raw = ml.findtext("datasource") or ""
@@ -368,8 +368,9 @@ def _save_base_qgs(root: ET.Element, path: Path) -> None:
     )
 
 
-def dump(qgz_path: Path) -> None:
+def dump(qgz_path: Path, project_dir: Path) -> None:
     qgz_path = qgz_path.resolve()
+    project_dir = project_dir.resolve()
     qgz_dir = qgz_path.parent
 
     with zipfile.ZipFile(qgz_path) as z:
@@ -379,16 +380,16 @@ def dump(qgz_path: Path) -> None:
         xml_bytes = z.read(qgs_names[0])
 
     root = ET.fromstring(xml_bytes)
-    spec = _build_spec(root, qgz_dir)
+    spec = _build_spec(root, qgz_dir, project_dir)
 
-    _save_base_qgs(root, STYLES / "base.qgs")
-    print(f"Wrote {STYLES / 'base.qgs'}")
+    _save_base_qgs(root, project_dir / "styles" / "base.qgs")
+    print(f"Wrote {project_dir / 'styles' / 'base.qgs'}")
 
-    _write_project_py(spec)
-    print(f"Wrote {HERE / 'project.py'}")
+    _write_project_py(spec, project_dir)
+    print(f"Wrote {project_dir / 'project.py'}")
 
-    (HERE / "project.json").write_text(spec.model_dump_json(indent=2))
-    print(f"Wrote {HERE / 'project.json'}")
+    (project_dir / "project.json").write_text(spec.model_dump_json(indent=2))
+    print(f"Wrote {project_dir / 'project.json'}")
 
     for layer in spec.layers:
         renderer_tag = f" [{type(layer.renderer).__name__}]" if layer.renderer else ""
@@ -396,7 +397,7 @@ def dump(qgz_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python -m src.dump <path/to/file.qgz>")
+    if len(sys.argv) < 3:
+        print("Usage: python -m src.dump <path/to/file.qgz> <project_dir>")
         sys.exit(1)
-    dump(Path(sys.argv[1]))
+    dump(Path(sys.argv[1]), Path(sys.argv[2]))

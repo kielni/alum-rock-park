@@ -7,7 +7,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from src.models import (
+from models import (
     Renderer,
     SimpleFill,
     SimpleLine,
@@ -19,9 +19,7 @@ from src.models import (
     RuleRenderer,
 )
 
-HERE = Path(__file__).parent.parent  # qgis_map/
-BUILD = HERE / "build"
-STYLES = HERE / "styles"
+HERE = Path(__file__).parent  # qgis_map/ — used for resolving data source paths
 
 _QGS_DOCTYPE = "<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>\n"
 
@@ -38,10 +36,12 @@ def _abs_source(source: str) -> str:
     return str((HERE / path_part).resolve()) + geom_suffix
 
 
-def _load_spec():
-    spec_path = HERE / "project.py"
+def _load_spec(project_dir: Path):
+    spec_path = project_dir / "project.py"
     if not spec_path.exists():
-        raise SystemExit("project.py not found — run 'make dump SRC=...' first")
+        raise SystemExit(
+            f"project.py not found in {project_dir} — run 'make dump-arp' first"
+        )
     module_spec = importlib.util.spec_from_file_location("project", spec_path)
     mod = importlib.util.module_from_spec(module_spec)
     sys.modules["project"] = mod
@@ -298,7 +298,7 @@ def _render_renderer(renderer: Renderer) -> ET.Element:
     raise ValueError(f"Unknown renderer type: {type(renderer)}")
 
 
-def _inject_layers(root: ET.Element, spec) -> None:
+def _inject_layers(root: ET.Element, spec, project_dir: Path) -> None:
     pl = root.find("projectlayers")
     if pl is None:
         pl = ET.SubElement(root, "projectlayers")
@@ -306,7 +306,7 @@ def _inject_layers(root: ET.Element, spec) -> None:
     for layer in spec.layers:
         if layer.style_xml is None:
             continue
-        xml_path = HERE / layer.style_xml
+        xml_path = project_dir / layer.style_xml
         if not xml_path.exists():
             print(f"  warning: {xml_path} not found, skipping {layer.name!r}")
             continue
@@ -329,10 +329,12 @@ def _inject_layers(root: ET.Element, spec) -> None:
         pl.append(ml)
 
 
-def render(spec) -> None:
-    base_path = STYLES / "base.qgs"
+def render(spec, project_dir: Path) -> None:
+    base_path = project_dir / "styles" / "base.qgs"
     if not base_path.exists():
-        raise SystemExit("styles/base.qgs not found — run 'make dump SRC=...' first")
+        raise SystemExit(
+            f"styles/base.qgs not found in {project_dir} — run 'make dump-arp' first"
+        )
 
     content = base_path.read_text()
     # Strip DOCTYPE before parsing (ET doesn't handle it)
@@ -345,12 +347,13 @@ def render(spec) -> None:
         _update_extent(root, spec.extent)
     _update_crs(root, spec.crs)
     _update_title(root, spec.title)
-    _inject_layers(root, spec)
+    _inject_layers(root, spec, project_dir)
     _rebuild_layer_tree(root, spec)
     _rebuild_legend(root, spec)
     _rebuild_layerorder(root, spec)
 
-    BUILD.mkdir(exist_ok=True)
-    out = BUILD / "project.qgs"
+    build_dir = project_dir / "build"
+    build_dir.mkdir(exist_ok=True)
+    out = build_dir / "project.qgs"
     out.write_text(_QGS_DOCTYPE + ET.tostring(root, encoding="unicode"))
     print(f"Wrote {out}")
