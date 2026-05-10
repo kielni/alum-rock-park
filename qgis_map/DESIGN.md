@@ -281,9 +281,9 @@ Start here. Add fields when something concrete needs them.
 
 ## Workflow
 
-1. `make dump QGZ=path/to/existing.qgz DIR=project_dir` — generate
-   `layers/*.py` and `styles/*.xml`. Rename IDs to human-friendly names.
-   Commit.
+1. Place `project_dir.qgz` inside `project_dir/`, then `make dump DIR=project_dir`
+   — generates `layers/*.py` and `styles/*.xml`. Rename IDs to human-friendly
+   names. Commit.
 2. `make build DIR=project_dir` — emit `output/project.qgs`. Open in QGIS.
    Verify it matches the original.
 3. Edit a layer file in VSCode. `make build DIR=...`. Reload in QGIS with

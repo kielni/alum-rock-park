@@ -10,13 +10,14 @@ a build script renders a `.qgs` file that QGIS opens as a viewer. See
 qgis_map/
   models.py          — Pydantic types for layers, renderers, symbols
   dump.py            — import a .qgz into a project directory
-  render.py          — render project.py → build/project.qgs
+  render.py          — render project.py → output/project.qgs
   build.py           — entry point with incremental rebuild
 
-  alum_rock_slope/   — one directory per project
+  sample/            — one directory per project
     project.py       — source of truth (edit this)
+    data/            - data files
     styles/          — per-layer XML extracted from the .qgz
-    build/           — generated .qgs (gitignored)
+    output/          — generated .qgs and derived rasters (gitignored)
 ```
 
 ## Python setup
@@ -25,29 +26,29 @@ qgis_map/
 uv sync
 ```
 
-## Quick start: Alum Rock Park
+## Quick start: sample project
 
 ```bash
-# import arp.qgz into alum_rock_slope/
-make dump-arp
+# place sample.qgz inside sample/, then:
+make dump DIR=sample
 
-# render alum_rock_slope/project.py → alum_rock_slope/build/project.qgs
-make build-arp
+# render sample/project.py → sample/output/project.qgs
+make build DIR=sample
 
-# open alum_rock_slope/build/project.qgs in QGIS
+# open sample/output/project.qgs in QGIS
 # after rebuilds, reload with Ctrl-R
 ```
 
 ## Adding a new project
 
 ```bash
-make dump SRC=path/to/file.qgz DIR=my_project
+make dump DIR=my_project   # reads my_project/my_project.qgz
 make build DIR=my_project
 ```
 
 ## Workflow
 
-Edit `project.py` in your IDE. Run `make build-arp` (or `make build DIR=...`).
+Edit a layer file in your IDE. Run `make build DIR=my_project`.
 Reload in QGIS. Commit `project.py` and any changed `styles/`.
 
 ## Requirements
