@@ -29,4 +29,4 @@ lint:
 
 clean:
 	@if [ -z "$(DIR)" ]; then echo "Usage: make clean DIR=project_dir"; exit 1; fi
-	rm -rf $(DIR)/build/
+	rm -rf $(DIR)/output/

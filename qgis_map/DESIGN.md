@@ -10,6 +10,12 @@ Treat QGIS projects as build output, not source. Source of truth is Python +
 that QGIS opens. QGIS is used as a viewer; edits happen in code or via
 narrowly scoped UI actions that get captured back into source.
 
+Data processing steps (reprojection, slope calculation, reclassification, etc.)
+are also captured in code alongside the layers they produce. Each transform
+records its inputs and the command to run, so the full pipeline is reproducible
+from a fresh checkout and the system knows which downstream steps need re-running
+when an input changes.
+
 ## Why
 
 Coming from software engineering, the user wants:
@@ -34,18 +40,24 @@ Generalize after friction, not before.
 
 ```
 qgis_map/
-  models.py               # Pydantic: Project, Layer, renderers, symbols
-  dump.py                 # .qgz → project.py + styles/*.xml
-  render.py               # project.py → build/project.qgs
+  models.py               # Pydantic: Project, Layer, ProcessingStep, renderers, symbols
+  dump.py                 # .qgz → layers/*.py + styles/*.xml
+  render.py               # project.py → output/project.qgs
+  prepare.py              # execute layer transforms (data prep, separate from build)
   build.py                # entry point
   Makefile
   local.env               # machine-local config (gitignored)
   local.env.example       # template
 
   <project_dir>/          # one directory per project
-    project.py            # source of truth — edit this
+    project.py            # assembles Project from layers — edit this
+    layers/               # one .py file per layer, named by layer ID
+      slope.py
+      elevation_10n.py
+      park_polygon.py
+      ...
     styles/               # per-layer XML extracted from .qgz, committed
-    build/                # gitignored; project.qgs lands here
+    output/               # gitignored; derived rasters and project.qgs land here
 ```
 
 ### Key choices
@@ -59,73 +71,231 @@ projects defeat diffing.
 
 **`.qml` files parsed with Pydantic.** QML is XML; parse it into typed models
 so symbology can be edited in code without touching the QGIS UI. QGIS UI is
-used for viewing only. Start from `park_symbols.qml` to drive the v1 schema.
+used primarily for viewing, with light editing when convenient. Start from `park_symbols.qml` to drive the v1 schema.
 Cross-layer operations (bump all symbol sizes, swap palette) follow naturally.
 
 **Derived data (slope, hillshade) is gitignored, regenerated from recorded
-commands.** Each transform is a shell command string and a comment explaining
-intent, stored in `project.py`. Not implemented in v1 — added when
-reproducible derived data is needed.
+transforms.** Each `Layer` with a `ProcessingStep` records the shell command and
+its inputs. Re-running is triggered by `make prepare`, not `make build`.
 
-## Workflow
+## Layer IDs and filenames
 
-1. `make dump QGZ=path/to/existing.qgz DIR=project_dir` — generate
-   `project.py` and `styles/*.xml`. Commit.
-2. `make build DIR=project_dir` — emit `build/project.qgs`. Open in QGIS.
-   Verify it matches the original.
-3. Edit `project.py` in VSCode (rename layer, swap source, etc.). `make
-   build DIR=...`. Reload in QGIS with Ctrl-R. Commit `project.py`.
-4. Two directions for symbology:
-   - **Code → QGIS**: edit `project.py`, `make build`, reload in QGIS to view.
-   - **QGIS → code**: tweak in QGIS UI, Save Style to overwrite `.qml` in
-     `styles/`, then `make dump` to re-parse QML back into `project.py`.
-     `git diff` to review what changed; commit.
-5. Hit something the model doesn't capture → add a field to `models.py`,
-   re-run `make dump` on a fresh copy of the project, diff. Or stuff it in
-   `extra` and move on.
+Layer IDs are human-friendly strings: `"slope"`, `"elevation_10n"`,
+`"park_polygon"`. Not QGIS-generated UUIDs. The ID is the stable handle used:
 
-### Exploration capture
+- as the filename: `layers/slope.py` contains a `Layer` with `id="slope"`
+- in `depends_on` to declare transform inputs
+- in `project.py` as the Python variable name after import
 
-For "tried hillshade, then slope, then slope-with-buckets, want to keep only
-the last":
+The ID (and filename stem) is derived by this priority:
 
-- Derive the command (gdal, grass, etc.) from QGIS Processing → History, an
-  LLM suggestion, or the tool's own docs. Add it to `project.py` as a shell
-  command string and a comment explaining intent. `make build` re-runs only
-  stale transforms.
-- For non-Processing changes (symbology, layer order): `make dump` produces a
-  fresh `project.py`. `git diff` shows what changed. Keep what you want;
-  revert the rest with `git checkout`.
+| Layer type | ID rule | Example |
+|---|---|---|
+| File-backed source, one geometry type | stem of source file | `../park_polygon.geojson` → `park_polygon` |
+| File-backed source, multiple geometry types from same file | stem + geometry suffix | `park_features_symbol_points`, `park_features_symbol_lines`, `park_features_symbol_polygons` |
+| Derived / transform output | stem of `transform.output` | `output/slope.tif` → `slope` |
+| Tile service or memory layer | descriptive name | `cartodb_positron`, `unique_values_table` |
 
-## Models (v1)
+When dumping an existing `.qgz`, replace the UUID-style IDs with human names
+at that point. The QGIS project file uses whatever ID is in `project.py`.
+
+## One layer per file
+
+Each layer lives in `layers/{layer_id}.py` and exports a single variable with
+the same name as the file. Complex renderers (`RuleRenderer`, multi-symbol
+rules) are defined as named variables before the `Layer(...)` call in the same
+file — not nested inline.
+
+`project.py` only imports layers and assembles the `Project`:
 
 ```python
-from pydantic import BaseModel, ConfigDict
-from pathlib import Path
-from typing import Any, Literal
+from layers.park_polygon import park_polygon
+from layers.elevation_import import elevation_import
+from layers.elevation_10n import elevation_10n
+from layers.slope import slope
 
-class LayerSpec(BaseModel):
+spec = Project(
+    title="Alum Rock Park Slope",
+    crs="EPSG:26910",
+    layers=[park_polygon, elevation_import, elevation_10n, slope, ...],
+)
+```
+
+`layers/slope.py` looks like:
+
+```python
+from pathlib import Path
+from models import Layer, ProcessingStep
+
+slope = Layer(
+    id="slope",
+    name="Slope",
+    type="raster",
+    source="output/slope.tif",
+    provider="gdal",
+    crs="EPSG:26910",
+    processing_step=ProcessingStep(
+        algorithm="gdaldem slope {input} {output}",
+        depends_on=["elevation_10n"],
+        output=Path("output/slope.tif"),
+    ),
+    style_xml=Path("styles/slope.xml"),
+)
+```
+
+`layers/park_features_symbol.py` with a `RuleRenderer`:
+
+```python
+parking_rules = RuleRenderer(
+    rules_key="{bb04642b-...}",
+    rules=[
+        Rule(key="{...}", label="parking", filter="\"symbol\" = 'parking'", symbol_index=0),
+        Rule(key="{...}", label="picnic",  filter="\"symbol\" = 'picnic'",  symbol_index=1),
+        ...
+    ],
+    symbols=[
+        Symbol(type="marker", layers=[SvgMarker(name="transportation .../parking_light.svg", ...)]),
+        Symbol(type="marker", layers=[SvgMarker(name="camping .../picnic_area_light.svg", ...)]),
+        ...
+    ],
+)
+
+park_features_symbol = Layer(
+    id="park_features_symbol",
+    name="park_features_symbol",
+    type="vector",
+    source="../park_features_symbol.geojson|geometrytype=Point",
+    provider="ogr",
+    crs="EPSG:4326",
+    renderer=parking_rules,
+    style_xml=Path("styles/park_features_symbol.xml"),
+)
+```
+
+## File ownership
+
+Who writes what, and whether humans should edit it:
+
+| File | Written by | Human edits? | Notes |
+|---|---|---|---|
+| `layers/*.py` | dump (once, bootstrap) | yes — source of truth after first dump | never overwritten by generator |
+| `styles/*.xml` | dump / QGIS Save Style | no | always safe to overwrite; treat as opaque |
+| `project.py` | human | yes | assembles layers into Project |
+| `helpers.py` | human | yes | project-wide helper functions |
+| `output/` | build / prepare | no | gitignored |
+
+`styles/*.xml` absorbs all machine-written churn. Layer Python files are owned
+by the human after bootstrap and never regenerated.
+
+## Helper functions
+
+Python functions related to transforms or styling belong as close to their use
+as possible, promoted only when a second caller needs them:
+
+- **Layer-specific** — define in `layers/{id}.py`, prefixed with `_`, above the
+  `Layer(...)` call. These are never at risk of being overwritten.
+- **Project-wide** — `{project_dir}/helpers.py`, imported by whichever layer
+  files need it. Use for shared color ramps, standard fills, ARP house style, etc.
+- **General / cross-project** — factory functions in `qgis_map/models.py`
+  (construct common renderers), or `qgis_map/transforms.py` (gdal command
+  builders, projection helpers).
+
+Promote from layer file → `helpers.py` → `qgis_map/` only when a second caller
+exists. Don't abstract in advance.
+
+## Processing steps
+
+Derived layers are produced by **Processing algorithms** — operations like
+`gdal:slope`, `gdal:warpreproject`, or equivalent GDAL/GRASS shell commands.
+Sources for the right algorithm and parameters: QGIS Processing Toolbox, QGIS
+Processing History after an interactive run, GDAL/GRASS documentation, or an LLM.
+
+`ProcessingStep` records a processing step: the algorithm invocation and its
+`depends_on` layers:
+
+```python
+class ProcessingStep(BaseModel):
+    algorithm: str     # shell command template, e.g. "gdaldem slope {input} {output}"
+    depends_on: list[str]  # IDs of layers that are algorithm inputs
+    output: Path       # algorithm output path, e.g. Path("output/slope.tif")
+```
+
+Only layers with a `ProcessingStep` have a processing step. Layers without one
+(vector files, tile services, the raw elevation raster) are input-only and
+appear only in `depends_on`.
+
+### Two separate workflows
+
+**`make build`** — renders `output/project.qgs` from `project.py`. Does not
+run any Processing algorithms. Fast, pure Python.
+
+**`make prepare`** — runs Processing algorithms for stale layers in dependency
+order. Slow; involves executing GDAL, GRASS, or other algorithms. Run when
+source data changes or an algorithm invocation is updated.
+
+### Dependency graph and staleness
+
+`prepare.py` builds a dependency graph from all layers' `depends_on` lists
+and does a topological sort. A layer is stale if:
+
+- its output does not exist, or
+- any layer in `depends_on` is stale (transitively), or
+- its `algorithm` has changed since the last run (tracked in `output/.state`)
+
+Re-running a stale layer marks all downstream layers stale, so they re-run in
+dependency order. Changing `elevation_10n` automatically re-runs `slope` and
+any layer with `slope` in its `depends_on`.
+
+## Models
+
+```python
+class ProcessingStep(BaseModel):
+    algorithm: str         # shell command template
+    depends_on: list[str]  # layer IDs that are algorithm inputs
+    output: Path           # algorithm output path
+
+class Layer(BaseModel):
     model_config = ConfigDict(extra="allow")
-    id: str                          # stable handle
-    name: str                        # display name
+    id: str                          # human-friendly, e.g. "slope"
+    name: str                        # QGIS display name
     type: Literal["vector", "raster"]
-    source: str                      # path or URI
-    provider: str = "ogr"            # ogr, gdal, postgres, ...
-    style_qml: Path | None = None    # path to .qml in styles/
-    crs: str | None = None           # "EPSG:4326"
+    source: str                      # path or URI; for derived layers, matches output/...
+    provider: str = "ogr"
+    style_xml: Path | None = None
+    crs: str | None = None
     visible: bool = True
+    renderer: Renderer | None = None
+    processing_step: ProcessingStep | None = None
     extra: dict[str, Any] = {}
 
-class ProjectSpec(BaseModel):
+class Project(BaseModel):
     model_config = ConfigDict(extra="allow")
     title: str
     crs: str
-    layers: list[LayerSpec]
+    layers: list[Layer]
     extent: tuple[float, float, float, float] | None = None
     extra: dict[str, Any] = {}
 ```
 
 Start here. Add fields when something concrete needs them.
+
+## Workflow
+
+1. `make dump QGZ=path/to/existing.qgz DIR=project_dir` — generate
+   `layers/*.py` and `styles/*.xml`. Rename IDs to human-friendly names.
+   Commit.
+2. `make build DIR=project_dir` — emit `output/project.qgs`. Open in QGIS.
+   Verify it matches the original.
+3. Edit a layer file in VSCode. `make build DIR=...`. Reload in QGIS with
+   Ctrl-R. Commit the layer file.
+4. When a transform's source data changes or command is updated: `make prepare
+   DIR=project_dir`. This re-runs stale transforms in dependency order, then
+   `make build`.
+5. Two directions for symbology:
+   - **Code → QGIS**: edit the layer file, `make build`, reload in QGIS.
+   - **QGIS → code**: tweak in QGIS UI, Save Style to overwrite the file in
+     `styles/`. Commit the updated XML. Optionally re-parse it back into the
+     layer's `renderer` field manually; `git diff` to review what changed.
 
 ## Dump implementation notes
 
@@ -135,55 +305,44 @@ No PyQGIS — parse XML directly. A `.qgz` is a zip; unzip to get `.qgs`.
 - Parse with `lxml` or `xml.etree`
 - Per `<maplayer>`: extract `datasource`, `srs/authid`, `provider`, `layername`
 - Extract embedded or linked `.qml` style per layer
-- Parse QML into `StyleSpec` Pydantic model (drive schema from `park_symbols.qml`)
-- Write `project.py` as a Python literal. Run `ruff format` for clean diffs.
+- Parse QML into `Renderer` Pydantic models
+- **Bootstrap behavior**: write `layers/{id}.py` only if the file does not already
+  exist. Skip existing files silently. Use `--force LAYER_ID` to overwrite a
+  single named layer when a deliberate re-sync is needed.
+- Always overwrite `styles/*.xml` — these are never human-edited.
+- Replace UUID-style IDs with human-friendly names at dump time
+- Run `black` on emitted Python for clean diffs
 - Lossy is acceptable in v1. Round-trip fidelity verified visually in QGIS.
 
 ## Render implementation notes
 
 No PyQGIS — generate XML directly.
 
-- Load `ProjectSpec` from `project.py`
-- Start from a minimal `.qgs` XML template (extract from `arp.qgz` as baseline)
+- Load `Project` by importing `project.py`
+- Start from a minimal `.qgs` XML template
 - Inject layer entries, CRS, extent, title by manipulating the XML tree
-- Serialize each `StyleSpec` back to QML XML
-- Write `build/project.qgs`
-- Build is incremental: only re-render layers or styles whose spec has changed
+- Serialize each `Renderer` back to QML XML (or embed `style_xml` contents)
+- Write `output/project.qgs`
 
 ## Build incrementality
 
-Track a content hash (or mtime) per artifact:
-- `project.qgs` — regenerate if any `ProjectSpec` field changes
-- Per-layer QML — regenerate only if that layer's `StyleSpec` changes
-- Transform outputs — re-run only if source data or transform params change
+Track a content hash per artifact in `output/.state`:
 
-Simple approach for v1: hash `project.py` and compare to a stored hash in
-`build/.state`. Full dependency graph if complexity warrants it later.
+- `project.qgs` — regenerate if any `Project` field or any layer file changes
+- Per-layer QML — regenerate only if that layer's renderer changes
+- ProcessingStep outputs — managed by `prepare.py`; re-run if source is stale or
+  command hash changed
 
 ## Reload in QGIS
 
-Use the **Reloader** and **Reload Project** plugins from the QGIS plugin
-repository. Reloader watches files; Reload Project adds Ctrl-R for the whole
-project. Manual reload is fine for v1; automate later if it gets old.
+Use the **Reloader** and **Reload Project** plugins. Reloader watches files;
+Reload Project adds Ctrl-R for the whole project.
 
 ## Deferred
 
 Add when concrete need arises, not before:
 
-- Structured transform tracking (v1 captures commands as plain strings;
-  structured params, dependency tracking, and partial re-runs come later)
 - Symbol library integration (NPS symbols, etc.)
 - DVC for large derived rasters
 - File watcher that triggers Ctrl-R automatically
-
-## First task for Claude Code
-
-1. Inspect `arp.qgz` and `park_symbols.qml` to understand the actual XML schema
-2. Draft `src/models.py` — `ProjectSpec`, `LayerSpec`, `StyleSpec` — driven by
-   what's actually in those files, not hypothetical fields
-3. Implement `dump.py` using `lxml` to parse `arp.qgz` → `project.py`
-4. Implement `render.py` to generate `build/project.qgs` from `project.py`
-5. Verify round-trip: dump → build → open in QGIS → confirm visual match
-6. Add incremental build state tracking to `build.py`
-
-Do not build features beyond v1 until the round-trip works on a real project.
+- Multi-step transforms (chain of commands, intermediate files)

@@ -100,6 +100,15 @@ Renderer = Annotated[
     Field(discriminator="kind"),
 ]
 
+# ── Processing step ───────────────────────────────────────────────────────────
+
+
+class ProcessingStep(BaseModel):
+    algorithm: str           # shell command template, e.g. "gdaldem slope {input} {output}"
+    depends_on: list[str]    # IDs of layers that are algorithm inputs
+    output: Path             # algorithm output path, e.g. Path("output/slope.tif")
+
+
 # ── Layer and Project ─────────────────────────────────────────────────────────
 
 
@@ -114,6 +123,7 @@ class Layer(BaseModel):
     crs: str | None = None
     visible: bool = True
     renderer: Renderer | None = None
+    processing_step: ProcessingStep | None = None
     extra: dict[str, Any] = {}
 
 

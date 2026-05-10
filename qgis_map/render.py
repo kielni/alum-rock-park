@@ -1,4 +1,4 @@
-"""Render project.py → build/project.qgs."""
+"""Render project.py → output/project.qgs."""
 
 from __future__ import annotations
 
@@ -19,20 +19,27 @@ from models import (
     RuleRenderer,
 )
 
-HERE = Path(__file__).parent  # qgis_map/ — used for resolving data source paths
+HERE = Path(__file__).parent  # qgis_map/
 
 _QGS_DOCTYPE = "<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>\n"
 
 
-def _abs_source(source: str) -> str:
-    """Resolve a project-relative source path to absolute for the QGS datasource."""
+def _abs_source(source: str, project_dir: Path) -> str:
+    """Resolve a source path to absolute for the QGS datasource.
+
+    Paths starting with './' are project-dir-relative (derived outputs).
+    All other relative paths are HERE-relative (source data alongside the repo).
+    URIs and absolute paths are returned unchanged.
+    """
     if source.startswith("/") or ":" in source.split("/")[0]:
-        return source  # already absolute or a URI/protocol string
+        return source
     geom_suffix = ""
     path_part = source
     if "|" in source:
         path_part, geom_suffix = source.split("|", 1)
         geom_suffix = "|" + geom_suffix
+    if path_part.startswith("./"):
+        return str((project_dir / path_part).resolve()) + geom_suffix
     return str((HERE / path_part).resolve()) + geom_suffix
 
 
@@ -40,8 +47,10 @@ def _load_spec(project_dir: Path):
     spec_path = project_dir / "project.py"
     if not spec_path.exists():
         raise SystemExit(
-            f"project.py not found in {project_dir} — run 'make dump-arp' first"
+            f"project.py not found in {project_dir} — run 'make dump' first"
         )
+    if str(project_dir) not in sys.path:
+        sys.path.insert(0, str(project_dir))
     module_spec = importlib.util.spec_from_file_location("project", spec_path)
     mod = importlib.util.module_from_spec(module_spec)
     sys.modules["project"] = mod
@@ -311,9 +320,13 @@ def _inject_layers(root: ET.Element, spec, project_dir: Path) -> None:
             print(f"  warning: {xml_path} not found, skipping {layer.name!r}")
             continue
         ml = ET.parse(xml_path).getroot()
+        ml.set("id", layer.id)
+        id_el = ml.find("id")
+        if id_el is not None:
+            id_el.text = layer.id
         ds = ml.find("datasource")
         if ds is not None:
-            ds.text = _abs_source(layer.source)
+            ds.text = _abs_source(layer.source, project_dir)
         nm = ml.find("layername")
         if nm is not None:
             nm.text = layer.name
@@ -333,11 +346,10 @@ def render(spec, project_dir: Path) -> None:
     base_path = project_dir / "styles" / "base.qgs"
     if not base_path.exists():
         raise SystemExit(
-            f"styles/base.qgs not found in {project_dir} — run 'make dump-arp' first"
+            f"styles/base.qgs not found in {project_dir} — run 'make dump' first"
         )
 
     content = base_path.read_text()
-    # Strip DOCTYPE before parsing (ET doesn't handle it)
     if content.startswith("<!DOCTYPE"):
         content = content[content.index(">") + 1 :].lstrip()
 
@@ -352,8 +364,8 @@ def render(spec, project_dir: Path) -> None:
     _rebuild_legend(root, spec)
     _rebuild_layerorder(root, spec)
 
-    build_dir = project_dir / "build"
-    build_dir.mkdir(exist_ok=True)
-    out = build_dir / "project.qgs"
+    output_dir = project_dir / "output"
+    output_dir.mkdir(exist_ok=True)
+    out = output_dir / "project.qgs"
     out.write_text(_QGS_DOCTYPE + ET.tostring(root, encoding="unicode"))
     print(f"Wrote {out}")
