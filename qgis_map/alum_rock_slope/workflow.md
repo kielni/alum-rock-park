@@ -201,7 +201,11 @@ To force a rebuild after commenting layers in or out: `make build-all DIR=<proje
 
 > update the word "deg" in the category labels with the degree symbol
 
-> set the transparency of the slope_class layer to 60%
+> set the transparency of the slope_class layer to 70%
+
+> this is too bright; I want a color scheme that is colorblind legible and easy to distinguish between classes but not too overwhelming when much of the area is the very steep bucket
+
+> update colors for slope to Color Brewer YlOrBr
 
 **What this does:**
 
@@ -229,15 +233,17 @@ gdal_calc.py -A USGS_slope_polygon.tif --A_band=1 \
 
 Uses the `PalettedRenderer` model with one `PaletteEntry` per class. Each entry takes an integer `value`, a hex `color`, and a `label` (shown in the QGIS legend):
 
+Uses the ColorBrewer YlOrBr 5-class palette — yellow for accessible flat terrain grading through orange to brown for very steep terrain. This palette is colorblind-safe and reads well when much of the map falls in the steep/very-steep categories.
+
 ```python
 renderer=PalettedRenderer(
-    opacity=0.6,
+    opacity=0.7,
     entries=[
-        PaletteEntry(value=1, color="#1a9641", label="Flat (0-5°)"),
-        PaletteEntry(value=2, color="#a6d96a", label="Gentle (5-11°)"),
-        PaletteEntry(value=3, color="#fdae61", label="Moderate (11-22°)"),
-        PaletteEntry(value=4, color="#d7191c", label="Steep (22-31°)"),
-        PaletteEntry(value=5, color="#7b0000", label="Very steep (>31°)"),
+        PaletteEntry(value=1, color="#ffffd4", label="Flat (0-5°)"),
+        PaletteEntry(value=2, color="#fed98e", label="Gentle (5-11°)"),
+        PaletteEntry(value=3, color="#fe9929", label="Moderate (11-22°)"),
+        PaletteEntry(value=4, color="#d95f0e", label="Steep (22-31°)"),
+        PaletteEntry(value=5, color="#993404", label="Very steep (>31°)"),
     ],
 )
 ```

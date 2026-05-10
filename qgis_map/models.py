@@ -118,9 +118,10 @@ Renderer = Annotated[
 
 
 class ProcessingStep(BaseModel):
-    algorithm: str           # shell command template, e.g. "gdaldem slope {input} {output}"
-    depends_on: list[str]    # IDs of layers that are algorithm inputs
-    output: Path             # algorithm output path, e.g. Path("output/slope.tif")
+    description: str  # plain-English sentence describing what this step produces
+    algorithm: str  # shell command template, e.g. "gdaldem slope {input} {output}"
+    depends_on: list[str]  # IDs of layers that are algorithm inputs
+    output: Path  # algorithm output path, e.g. Path("output/slope.tif")
 
 
 # ── Layer and Project ─────────────────────────────────────────────────────────
@@ -135,8 +136,12 @@ class Layer(BaseModel):
     provider: str = "ogr"
     style_xml: Path | None = None  # styles/{layer_id}.xml — full <maplayer> element
     crs: str | None = None
-    geometry_type: str | None = None  # "Polygon", "LineString", or "Point" — enables XML-free vector layers
-    alpha_band: int | None = None  # raster band to use as alpha channel (e.g. 2 when created with gdalwarp -dstalpha)
+    geometry_type: str | None = (
+        None  # "Polygon", "LineString", or "Point" — enables XML-free vector layers
+    )
+    alpha_band: int | None = (
+        None  # raster band to use as alpha channel (e.g. 2 when created with gdalwarp -dstalpha)
+    )
     visible: bool = True
     renderer: Renderer | None = None
     processing_step: ProcessingStep | None = None
