@@ -1,6 +1,7 @@
 from models import Project
 
 from layers.cartodb_positron import cartodb_positron
+from layers.park_polygon import park_polygon
 
 spec = Project(
     title="Alum Rock Slope",
@@ -12,6 +13,7 @@ spec = Project(
         4141615.633206291,
     ),
     layers=[
+        park_polygon,
         cartodb_positron,
     ],
 )

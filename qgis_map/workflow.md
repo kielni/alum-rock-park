@@ -62,8 +62,42 @@ Step-by-step prompts and descriptions for building a new project using the text-
 
 ---
 
+## 4. Add a GeoJSON vector layer
+
+**Prompts:**
+
+> add new layer to alum_rock_park project from data/park_polygon.geojson ; this is a polygon layer that should draw on top of basemap
+
+> style the park polygon as a thick purple outline, transparent inside
+
+**What this does:**
+
+- Creates `<project_dir>/layers/<name>.py` with a `Layer` definition:
+  - `type="vector"`, `provider="ogr"`, `crs="EPSG:4326"` (GeoJSON is always WGS84)
+  - `geometry_type="Polygon"` (or `"LineString"` / `"Point"`) — this enables XML-free layer generation
+  - `source="./data/<name>.geojson"` — path relative to the project directory
+  - An inline `renderer` describing the style
+- No style XML file is needed. The build system generates the `<maplayer>` element from the layer definition, using pyproj to embed the CRS.
+- Layer order in `project.py` controls draw order: layers listed first draw on top.
+- CRS mismatch between layer and project is handled automatically by QGIS (on-the-fly reprojection).
+
+**Style primitives for polygons:**
+
+| Goal | Key fields |
+|---|---|
+| Transparent fill | `style="no"` |
+| Solid fill | `style="solid"`, `color="R,G,B,255"` |
+| Outline color | `outline_color="R,G,B,255"` |
+| Outline thickness | `outline_width=1.5` (mm) |
+
+**Files created:**
+- `<project_dir>/layers/<name>.py`
+
+---
+
 ## Notes
 
 - Every new project needs `styles/base.qgs`. Copy it from `sample/styles/base.qgs` — it works for any project using the same QGIS version and CRS.
-- Every layer with a `style_xml` path needs a corresponding XML file in `styles/`. These can be copied from sample or exported from QGIS via Layer Properties → Style → Save Style.
-- Layers without `style_xml` appear in the layer tree but not in `projectlayers`, so QGIS won't load them.
+- Vector layers with `geometry_type` set and an inline `renderer` need no XML file. The build generates the `<maplayer>` element automatically.
+- Raster layers and tile basemaps still require a `style_xml` file (copy from sample or export from QGIS via Layer Properties → Style → Save Style).
+- Layers with neither `style_xml` nor `geometry_type` appear in the layer tree but not in `projectlayers`, so QGIS won't load them.

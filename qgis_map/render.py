@@ -307,6 +307,75 @@ def _render_renderer(renderer: Renderer) -> ET.Element:
     raise ValueError(f"Unknown renderer type: {type(renderer)}")
 
 
+def _srs_element(authid: str) -> ET.Element:
+    from pyproj import CRS as ProjCRS
+
+    crs = ProjCRS(authid)
+    epsg_code = authid.split(":")[-1]
+    srs = ET.Element("srs")
+    sys_el = ET.SubElement(srs, "spatialrefsys", nativeFormat="Wkt")
+    ET.SubElement(sys_el, "wkt").text = crs.to_wkt()
+    ET.SubElement(sys_el, "proj4").text = crs.to_proj4()
+    ET.SubElement(sys_el, "srsid").text = "0"
+    ET.SubElement(sys_el, "srid").text = epsg_code
+    ET.SubElement(sys_el, "authid").text = authid
+    ET.SubElement(sys_el, "description").text = crs.name
+    ET.SubElement(sys_el, "projectionacronym").text = ""
+    ET.SubElement(sys_el, "ellipsoidacronym").text = ""
+    ET.SubElement(sys_el, "geographicflag").text = (
+        "true" if crs.is_geographic else "false"
+    )
+    return srs
+
+
+def _build_vector_maplayer(layer) -> ET.Element:
+    ml = ET.Element(
+        "maplayer",
+        type="vector",
+        geometry=layer.geometry_type,
+        wkbType=layer.geometry_type,
+        autoRefreshTime="0",
+        autoRefreshMode="Disabled",
+        styleCategories="AllStyleCategories",
+        labelsEnabled="0",
+        readOnly="0",
+        refreshOnNotifyEnabled="0",
+        refreshOnNotifyMessage="",
+        maxScale="0",
+        minScale="100000000",
+        hasScaleBasedVisibilityFlag="0",
+        simplifyDrawingHints="1",
+        simplifyDrawingTol="1",
+        simplifyMaxScale="1",
+        simplifyAlgorithm="0",
+        simplifyLocal="1",
+        symbologyReferenceScale="-1",
+        legendPlaceholderImage="",
+    )
+    ET.SubElement(ml, "id").text = layer.id
+    ET.SubElement(ml, "datasource")
+    ET.SubElement(ml, "layername").text = layer.name
+    if layer.crs:
+        ml.append(_srs_element(layer.crs))
+    ET.SubElement(ml, "provider", encoding="UTF-8").text = layer.provider
+    style_mgr = ET.SubElement(ml, "map-layer-style-manager", current="default")
+    ET.SubElement(style_mgr, "map-layer-style", name="default")
+    flags = ET.SubElement(ml, "flags")
+    for flag, val in [
+        ("Identifiable", "1"),
+        ("Removable", "1"),
+        ("Searchable", "1"),
+        ("Private", "0"),
+    ]:
+        ET.SubElement(flags, flag).text = val
+    ET.SubElement(ml, "fieldConfiguration")
+    ET.SubElement(ml, "vectorjoins")
+    ET.SubElement(ml, "layerDependencies")
+    ET.SubElement(ml, "dataDependencies")
+    ET.SubElement(ml, "expressionfields")
+    return ml
+
+
 def _inject_layers(root: ET.Element, spec, project_dir: Path) -> None:
     pl = root.find("projectlayers")
     if pl is None:
@@ -314,12 +383,16 @@ def _inject_layers(root: ET.Element, spec, project_dir: Path) -> None:
 
     for layer in spec.layers:
         if layer.style_xml is None:
-            continue
-        xml_path = project_dir / layer.style_xml
-        if not xml_path.exists():
-            print(f"  warning: {xml_path} not found, skipping {layer.name!r}")
-            continue
-        ml = ET.parse(xml_path).getroot()
+            if layer.type == "vector" and layer.geometry_type:
+                ml = _build_vector_maplayer(layer)
+            else:
+                continue
+        else:
+            xml_path = project_dir / layer.style_xml
+            if not xml_path.exists():
+                print(f"  warning: {xml_path} not found, skipping {layer.name!r}")
+                continue
+            ml = ET.parse(xml_path).getroot()
         ml.set("id", layer.id)
         id_el = ml.find("id")
         if id_el is not None:

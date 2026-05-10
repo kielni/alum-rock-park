@@ -121,6 +121,7 @@ class Layer(BaseModel):
     provider: str = "ogr"
     style_xml: Path | None = None  # styles/{layer_id}.xml — full <maplayer> element
     crs: str | None = None
+    geometry_type: str | None = None  # "Polygon", "LineString", or "Point" — enables XML-free vector layers
     visible: bool = True
     renderer: Renderer | None = None
     processing_step: ProcessingStep | None = None
