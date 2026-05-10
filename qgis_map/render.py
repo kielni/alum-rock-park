@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from models import (
+    PalettedRenderer,
     Renderer,
     SimpleFill,
     SimpleLine,
@@ -376,6 +377,65 @@ def _build_vector_maplayer(layer) -> ET.Element:
     return ml
 
 
+def _build_paletted_pipe(renderer: PalettedRenderer) -> ET.Element:
+    pipe = ET.Element("pipe")
+    provider_el = ET.SubElement(pipe, "provider")
+    ET.SubElement(
+        provider_el,
+        "resampling",
+        maxOversampling="2",
+        enabled="false",
+        zoomedInResamplingMethod="nearestNeighbour",
+        zoomedOutResamplingMethod="nearestNeighbour",
+    )
+    r = ET.SubElement(
+        pipe,
+        "rasterrenderer",
+        type="paletted",
+        band=str(renderer.band),
+        alphaBand="-1",
+        opacity=str(renderer.opacity),
+        nodataColor="",
+    )
+    ET.SubElement(r, "rasterTransparency")
+    mmo = ET.SubElement(r, "minMaxOrigin")
+    for tag, val in [
+        ("limits", "None"),
+        ("extent", "WholeRaster"),
+        ("statAccuracy", "Estimated"),
+        ("cumulativeCutLower", "0.02"),
+        ("cumulativeCutUpper", "0.98"),
+        ("stdDevFactor", "2"),
+    ]:
+        ET.SubElement(mmo, tag).text = val
+    palette = ET.SubElement(r, "colorPalette")
+    for entry in renderer.entries:
+        ET.SubElement(
+            palette,
+            "paletteEntry",
+            value=str(entry.value),
+            color=entry.color,
+            alpha=str(entry.alpha),
+            label=entry.label,
+        )
+    ET.SubElement(pipe, "brightnesscontrast", gamma="1", contrast="0", brightness="0")
+    ET.SubElement(
+        pipe,
+        "huesaturation",
+        colorizeRed="255",
+        colorizeGreen="128",
+        invertColors="0",
+        colorizeOn="0",
+        grayscaleMode="0",
+        saturation="0",
+        colorizeStrength="100",
+        colorizeBlue="128",
+    )
+    ET.SubElement(pipe, "rasterresampler", maxOversampling="2")
+    ET.SubElement(pipe, "resamplingStage").text = "resamplingFilter"
+    return pipe
+
+
 def _build_raster_maplayer(layer) -> ET.Element:
     ml = ET.Element(
         "maplayer",
@@ -407,57 +467,60 @@ def _build_raster_maplayer(layer) -> ET.Element:
     ]:
         ET.SubElement(flags, flag).text = val
     nodata = ET.SubElement(ml, "noData")
-    ET.SubElement(nodata, "noDataList", useSrcNoData="0", bandNo="1")
-    pipe = ET.SubElement(ml, "pipe")
-    provider_el = ET.SubElement(pipe, "provider")
-    ET.SubElement(
-        provider_el,
-        "resampling",
-        maxOversampling="2",
-        enabled="false",
-        zoomedInResamplingMethod="nearestNeighbour",
-        zoomedOutResamplingMethod="nearestNeighbour",
-    )
-    renderer = ET.SubElement(
-        pipe,
-        "rasterrenderer",
-        type="singlebandgray",
-        grayBand="1",
-        alphaBand=str(layer.alpha_band) if layer.alpha_band is not None else "-1",
-        opacity="1",
-        gradient="BlackToWhite",
-        nodataColor="",
-    )
-    ET.SubElement(renderer, "rasterTransparency")
-    mmo = ET.SubElement(renderer, "minMaxOrigin")
-    for tag, val in [
-        ("limits", "MinMax"),
-        ("extent", "WholeRaster"),
-        ("statAccuracy", "Estimated"),
-        ("cumulativeCutLower", "0.02"),
-        ("cumulativeCutUpper", "0.98"),
-        ("stdDevFactor", "2"),
-    ]:
-        ET.SubElement(mmo, tag).text = val
-    ce = ET.SubElement(renderer, "contrastEnhancement")
-    ET.SubElement(ce, "minValue").text = "0"
-    ET.SubElement(ce, "maxValue").text = "1"
-    ET.SubElement(ce, "algorithm").text = "StretchToMinimumMaximum"
-    ET.SubElement(pipe, "brightnesscontrast", gamma="1", contrast="0", brightness="0")
-    ET.SubElement(
-        pipe,
-        "huesaturation",
-        colorizeRed="255",
-        colorizeGreen="128",
-        invertColors="0",
-        colorizeOn="0",
-        grayscaleMode="0",
-        saturation="0",
-        colorizeStrength="100",
-        colorizeBlue="128",
-    )
-    ET.SubElement(pipe, "rasterresampler", maxOversampling="2")
-    ET.SubElement(pipe, "resamplingStage").text = "resamplingFilter"
+    ET.SubElement(nodata, "noDataList", useSrcNoData="1", bandNo="1")
+    if isinstance(layer.renderer, PalettedRenderer):
+        ml.append(_build_paletted_pipe(layer.renderer))
+    else:
+        pipe = ET.SubElement(ml, "pipe")
+        provider_el = ET.SubElement(pipe, "provider")
+        ET.SubElement(
+            provider_el,
+            "resampling",
+            maxOversampling="2",
+            enabled="false",
+            zoomedInResamplingMethod="nearestNeighbour",
+            zoomedOutResamplingMethod="nearestNeighbour",
+        )
+        r = ET.SubElement(
+            pipe,
+            "rasterrenderer",
+            type="singlebandgray",
+            grayBand="1",
+            alphaBand=str(layer.alpha_band) if layer.alpha_band is not None else "-1",
+            opacity="1",
+            gradient="BlackToWhite",
+            nodataColor="",
+        )
+        ET.SubElement(r, "rasterTransparency")
+        mmo = ET.SubElement(r, "minMaxOrigin")
+        for tag, val in [
+            ("limits", "MinMax"),
+            ("extent", "WholeRaster"),
+            ("statAccuracy", "Estimated"),
+            ("cumulativeCutLower", "0.02"),
+            ("cumulativeCutUpper", "0.98"),
+            ("stdDevFactor", "2"),
+        ]:
+            ET.SubElement(mmo, tag).text = val
+        ce = ET.SubElement(r, "contrastEnhancement")
+        ET.SubElement(ce, "minValue").text = "0"
+        ET.SubElement(ce, "maxValue").text = "1"
+        ET.SubElement(ce, "algorithm").text = "StretchToMinimumMaximum"
+        ET.SubElement(pipe, "brightnesscontrast", gamma="1", contrast="0", brightness="0")
+        ET.SubElement(
+            pipe,
+            "huesaturation",
+            colorizeRed="255",
+            colorizeGreen="128",
+            invertColors="0",
+            colorizeOn="0",
+            grayscaleMode="0",
+            saturation="0",
+            colorizeStrength="100",
+            colorizeBlue="128",
+        )
+        ET.SubElement(pipe, "rasterresampler", maxOversampling="2")
+        ET.SubElement(pipe, "resamplingStage").text = "resamplingFilter"
     ET.SubElement(ml, "blendMode").text = "0"
     return ml
 
@@ -491,7 +554,7 @@ def _inject_layers(root: ET.Element, spec, project_dir: Path) -> None:
         nm = ml.find("layername")
         if nm is not None:
             nm.text = layer.name
-        if layer.renderer is not None:
+        if layer.renderer is not None and layer.type == "vector":
             old = ml.find("renderer-v2")
             new = _render_renderer(layer.renderer)
             if old is not None:

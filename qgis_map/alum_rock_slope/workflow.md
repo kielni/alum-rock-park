@@ -139,6 +139,117 @@ gdalwarp \
 
 ---
 
+## 6. Calculate slope from elevation
+
+**Prompt:**
+
+> I want to calculate slope in degrees from the elevation layer ; walk me through the options
+
+> reproject elevation, run slope, and clip
+
+**What this does:**
+
+Runs a three-step pipeline — each step recorded as a layer with a `ProcessingStep`:
+
+| Step | Command | Input | Output |
+|---|---|---|---|
+| Reproject | `gdalwarp -t_srs EPSG:26910 -r bilinear` | `USGS_elevation.tif` | `USGS_elevation_utm.tif` |
+| Slope | `gdaldem slope` | `USGS_elevation_utm.tif` | `USGS_slope_utm.tif` |
+| Clip | `gdalwarp -cutline … -crop_to_cutline -dstalpha` | `USGS_slope_utm.tif` | `USGS_slope_polygon.tif` |
+
+Why reproject first: the source DEM is in EPSG:4269 (geographic degrees). `gdaldem slope` needs horizontal and vertical units to match — UTM gives consistent metres in all three axes. Reprojecting before slope avoids the approximation error of the `-s` scale factor.
+
+Creates three layer files:
+- `layers/elevation_utm.py` — hidden intermediate; depends_on=[]
+- `layers/slope_utm.py` — hidden intermediate; depends_on=["elevation_utm"]
+- `layers/slope_polygon.py` — visible display layer; `alpha_band=2`, depends_on=["slope_utm"]
+
+**Intermediate layers in `project.py`:**
+
+The `_utm` layers are recorded in `layers/` for reproducibility but are not display layers. They are commented out of `project.py` so they don't appear in QGIS:
+
+```python
+# from layers.elevation_utm import elevation_utm
+from layers.slope_polygon import slope_polygon
+# from layers.slope_utm import slope_utm
+
+layers=[
+    park_polygon,
+    slope_polygon,
+    elevation_polygon,
+    # elevation_utm,
+    # slope_utm,
+    cartodb_positron,
+]
+```
+
+To force a rebuild after commenting layers in or out: `make build-all DIR=<project_dir>`.
+
+**Files created:**
+- `layers/elevation_utm.py`, `layers/slope_utm.py`, `layers/slope_polygon.py`
+- `data/USGS_elevation_utm.tif`, `data/USGS_slope_utm.tif`, `data/USGS_slope_polygon.tif`
+
+---
+
+## 7. Classify slope into categories
+
+**Prompts:**
+
+> tell me about slope degree breakpoints for flat, moderate, steep etc commonly used in vegetation management contexts
+
+> classify the slope layer into categories using Mechanical treatment access categories
+
+> update the word "deg" in the category labels with the degree symbol
+
+> set the transparency of the slope_class layer to 60%
+
+**What this does:**
+
+Runs `gdal_calc.py` to reclassify the continuous slope raster into five integer categories based on mechanical treatment access breakpoints:
+
+| Value | Label | Range | Meaning |
+|---|---|---|---|
+| 1 | Flat | 0–5° | All equipment |
+| 2 | Gentle | 5–11° | Wheeled tractors, mowers |
+| 3 | Moderate | 11–22° | Tracked equipment |
+| 4 | Steep | 22–31° | Hand crews |
+| 5 | Very steep | >31° | Hand crews only |
+
+The classification formula uses `numpy.select` inside `gdal_calc.py`, masked by the alpha band (band 2) so areas outside the park polygon stay as nodata (value 0):
+
+```bash
+gdal_calc.py -A USGS_slope_polygon.tif --A_band=1 \
+             -B USGS_slope_polygon.tif --B_band=2 \
+             --outfile=USGS_slope_class.tif \
+             --calc="numpy.where(B>0, numpy.select([A<5, A<11, A<22, A<31], [1,2,3,4], 5), 0)" \
+             --type=Byte --NoDataValue=0 --quiet
+```
+
+**Styling with `PalettedRenderer`:**
+
+Uses the `PalettedRenderer` model with one `PaletteEntry` per class. Each entry takes an integer `value`, a hex `color`, and a `label` (shown in the QGIS legend):
+
+```python
+renderer=PalettedRenderer(
+    opacity=0.6,
+    entries=[
+        PaletteEntry(value=1, color="#1a9641", label="Flat (0-5°)"),
+        PaletteEntry(value=2, color="#a6d96a", label="Gentle (5-11°)"),
+        PaletteEntry(value=3, color="#fdae61", label="Moderate (11-22°)"),
+        PaletteEntry(value=4, color="#d7191c", label="Steep (22-31°)"),
+        PaletteEntry(value=5, color="#7b0000", label="Very steep (>31°)"),
+    ],
+)
+```
+
+`opacity` on `PalettedRenderer` sets layer transparency (0.0 = invisible, 1.0 = fully opaque). No style XML needed.
+
+**Files created:**
+- `layers/slope_class.py`
+- `data/USGS_slope_class.tif`
+
+---
+
 ## Notes
 
 - Every new project needs `styles/base.qgs`. Copy it from `sample/styles/base.qgs` — it works for any project using the same QGIS version and CRS.

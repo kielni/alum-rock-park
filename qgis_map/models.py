@@ -95,8 +95,22 @@ class RuleRenderer(BaseModel):
     symbols: list[Symbol]
 
 
+class PaletteEntry(BaseModel):
+    value: int
+    color: str  # "#rrggbb"
+    alpha: int = 255
+    label: str = ""
+
+
+class PalettedRenderer(BaseModel):
+    kind: Literal["paletted"] = "paletted"
+    band: int = 1
+    opacity: float = 1.0
+    entries: list[PaletteEntry]
+
+
 Renderer = Annotated[
-    SingleSymbol | RuleRenderer,
+    SingleSymbol | RuleRenderer | PalettedRenderer,
     Field(discriminator="kind"),
 ]
 
