@@ -122,6 +122,7 @@ class Layer(BaseModel):
     style_xml: Path | None = None  # styles/{layer_id}.xml — full <maplayer> element
     crs: str | None = None
     geometry_type: str | None = None  # "Polygon", "LineString", or "Point" — enables XML-free vector layers
+    alpha_band: int | None = None  # raster band to use as alpha channel (e.g. 2 when created with gdalwarp -dstalpha)
     visible: bool = True
     renderer: Renderer | None = None
     processing_step: ProcessingStep | None = None

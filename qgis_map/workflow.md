@@ -95,9 +95,54 @@ Step-by-step prompts and descriptions for building a new project using the text-
 
 ---
 
+## 5. Add an elevation raster layer
+
+### Data source
+
+- **Download tool:** [The National Map Downloader](https://apps.nationalmap.gov/downloader/) — select Elevation Products (3DEP), 1/3 arc-second (~10m), GeoTIFF
+- **Dataset used:** [USGS 1/3 arc-second DEM tile](https://www.sciencebase.gov/catalog/item/68afba8fd4be02645f9b293f)
+- Native CRS: **EPSG:4269** (NAD83 geographic)
+- Place the downloaded file at `<project_dir>/data/USGS_elevation.tif`
+
+### Clip to park boundary
+
+Run once manually before building:
+
+```bash
+gdalwarp \
+  -cutline ./data/park_polygon.geojson \
+  -crop_to_cutline \
+  -dstalpha \
+  ./data/USGS_elevation.tif \
+  ./data/USGS_elevation_polygon.tif
+```
+
+`-dstalpha` adds a second band as an alpha channel so pixels outside the polygon are transparent rather than black.
+
+### Prompt
+
+> I downloaded elevation data from the national map and put it in alum_rock_slope/data/USGS_elevation.tif. I want to clip the data to the polygon in alum_rock_slope/data/park_polygon.geojson and output as alum_rock_slope/data/USGS_elevation_polygon.tif. Record the processing step and add the output layer to the project
+
+**What this does:**
+
+- Runs `gdalwarp` to clip the raster to the park polygon with an alpha channel.
+- Creates `<project_dir>/layers/<name>.py` with:
+  - `type="raster"`, `provider="gdal"`, `crs="EPSG:4269"`
+  - `alpha_band=2` — tells QGIS to use band 2 (the `-dstalpha` output) as the transparency mask; without this the nodata area renders as solid black
+  - `processing_step` — records the gdalwarp command and output path for reproducibility
+- No style XML needed. The build generates a singleband gray renderer with stretch-to-min/max.
+- Layer order: place between the park polygon (top) and basemap (bottom).
+
+**Files created:**
+- `<project_dir>/layers/<name>.py`
+- `<project_dir>/data/USGS_elevation_polygon.tif` (from gdalwarp)
+
+---
+
 ## Notes
 
 - Every new project needs `styles/base.qgs`. Copy it from `sample/styles/base.qgs` — it works for any project using the same QGIS version and CRS.
 - Vector layers with `geometry_type` set and an inline `renderer` need no XML file. The build generates the `<maplayer>` element automatically.
-- Raster layers and tile basemaps still require a `style_xml` file (copy from sample or export from QGIS via Layer Properties → Style → Save Style).
+- Raster layers also work without a style XML file. The build generates a default singleband gray renderer. Set `alpha_band=2` if the file was created with `gdalwarp -dstalpha`.
+- Tile basemap layers (provider `wms`) still require a `style_xml` file (copy from sample or export from QGIS via Layer Properties → Style → Save Style).
 - Layers with neither `style_xml` nor `geometry_type` appear in the layer tree but not in `projectlayers`, so QGIS won't load them.

@@ -1,6 +1,7 @@
 from models import Project
 
 from layers.cartodb_positron import cartodb_positron
+from layers.elevation_polygon import elevation_polygon
 from layers.park_polygon import park_polygon
 
 spec = Project(
@@ -14,6 +15,7 @@ spec = Project(
     ),
     layers=[
         park_polygon,
+        elevation_polygon,
         cartodb_positron,
     ],
 )

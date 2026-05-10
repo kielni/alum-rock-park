@@ -56,11 +56,10 @@ Reload in QGIS. Commit `project.py` and any changed `styles/`.
 - QGIS 3.x desktop app at `/Applications/QGIS.app`
 - [uv](https://docs.astral.sh/uv/)
 
-### QGIS reload shortcut
+### QGIS reload
 
-Bind Ctrl-R to reload the current project from disk:
-
-`Settings → Keyboard Shortcuts`, search for "Revert", assign Ctrl+R.
+Copy / merge `qgis_startup.py` to QGIS startup script: 
+~/Library/Application Support/QGIS/QGIS3/startup.py
 
 ### QGIS plugins
 

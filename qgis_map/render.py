@@ -376,6 +376,92 @@ def _build_vector_maplayer(layer) -> ET.Element:
     return ml
 
 
+def _build_raster_maplayer(layer) -> ET.Element:
+    ml = ET.Element(
+        "maplayer",
+        type="raster",
+        autoRefreshTime="0",
+        autoRefreshMode="Disabled",
+        styleCategories="AllStyleCategories",
+        refreshOnNotifyEnabled="0",
+        refreshOnNotifyMessage="",
+        maxScale="0",
+        minScale="100000000",
+        hasScaleBasedVisibilityFlag="0",
+        legendPlaceholderImage="",
+    )
+    ET.SubElement(ml, "id").text = layer.id
+    ET.SubElement(ml, "datasource")
+    ET.SubElement(ml, "layername").text = layer.name
+    if layer.crs:
+        ml.append(_srs_element(layer.crs))
+    ET.SubElement(ml, "provider").text = layer.provider
+    style_mgr = ET.SubElement(ml, "map-layer-style-manager", current="default")
+    ET.SubElement(style_mgr, "map-layer-style", name="default")
+    flags = ET.SubElement(ml, "flags")
+    for flag, val in [
+        ("Identifiable", "1"),
+        ("Removable", "1"),
+        ("Searchable", "1"),
+        ("Private", "0"),
+    ]:
+        ET.SubElement(flags, flag).text = val
+    nodata = ET.SubElement(ml, "noData")
+    ET.SubElement(nodata, "noDataList", useSrcNoData="0", bandNo="1")
+    pipe = ET.SubElement(ml, "pipe")
+    provider_el = ET.SubElement(pipe, "provider")
+    ET.SubElement(
+        provider_el,
+        "resampling",
+        maxOversampling="2",
+        enabled="false",
+        zoomedInResamplingMethod="nearestNeighbour",
+        zoomedOutResamplingMethod="nearestNeighbour",
+    )
+    renderer = ET.SubElement(
+        pipe,
+        "rasterrenderer",
+        type="singlebandgray",
+        grayBand="1",
+        alphaBand=str(layer.alpha_band) if layer.alpha_band is not None else "-1",
+        opacity="1",
+        gradient="BlackToWhite",
+        nodataColor="",
+    )
+    ET.SubElement(renderer, "rasterTransparency")
+    mmo = ET.SubElement(renderer, "minMaxOrigin")
+    for tag, val in [
+        ("limits", "MinMax"),
+        ("extent", "WholeRaster"),
+        ("statAccuracy", "Estimated"),
+        ("cumulativeCutLower", "0.02"),
+        ("cumulativeCutUpper", "0.98"),
+        ("stdDevFactor", "2"),
+    ]:
+        ET.SubElement(mmo, tag).text = val
+    ce = ET.SubElement(renderer, "contrastEnhancement")
+    ET.SubElement(ce, "minValue").text = "0"
+    ET.SubElement(ce, "maxValue").text = "1"
+    ET.SubElement(ce, "algorithm").text = "StretchToMinimumMaximum"
+    ET.SubElement(pipe, "brightnesscontrast", gamma="1", contrast="0", brightness="0")
+    ET.SubElement(
+        pipe,
+        "huesaturation",
+        colorizeRed="255",
+        colorizeGreen="128",
+        invertColors="0",
+        colorizeOn="0",
+        grayscaleMode="0",
+        saturation="0",
+        colorizeStrength="100",
+        colorizeBlue="128",
+    )
+    ET.SubElement(pipe, "rasterresampler", maxOversampling="2")
+    ET.SubElement(pipe, "resamplingStage").text = "resamplingFilter"
+    ET.SubElement(ml, "blendMode").text = "0"
+    return ml
+
+
 def _inject_layers(root: ET.Element, spec, project_dir: Path) -> None:
     pl = root.find("projectlayers")
     if pl is None:
@@ -385,6 +471,8 @@ def _inject_layers(root: ET.Element, spec, project_dir: Path) -> None:
         if layer.style_xml is None:
             if layer.type == "vector" and layer.geometry_type:
                 ml = _build_vector_maplayer(layer)
+            elif layer.type == "raster":
+                ml = _build_raster_maplayer(layer)
             else:
                 continue
         else:
