@@ -2,7 +2,12 @@ from models import Project
 
 from layers.cartodb_positron import cartodb_positron
 from layers.elevation_polygon import elevation_polygon
+
+# from layers.elevation_utm import elevation_utm
 from layers.park_polygon import park_polygon
+from layers.slope_polygon import slope_polygon
+
+# from layers.slope_utm import slope_utm
 
 spec = Project(
     title="Alum Rock Slope",
@@ -15,7 +20,10 @@ spec = Project(
     ),
     layers=[
         park_polygon,
+        slope_polygon,
         elevation_polygon,
+        # elevation_utm,
+        # slope_utm,
         cartodb_positron,
     ],
 )

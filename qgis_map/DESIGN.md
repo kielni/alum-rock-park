@@ -172,6 +172,23 @@ park_features_symbol = Layer(
 )
 ```
 
+## LLM workflow documentation
+
+Each project directory contains a `workflow.md` that records the LLM prompts used to build the project and what each one did. It is written collaboratively — the LLM drafts or updates it as work progresses.
+
+**When to update:** after adding a layer, running a processing step, or making a non-trivial styling change. Update in the same session, not retroactively.
+
+**What to capture per step:**
+
+- The exact prompt (or close paraphrase)
+- What the prompt caused to happen — files created, commands run, model fields set
+- Any non-obvious choices (why a particular CRS, why alpha_band=2, etc.)
+- Data source URLs and download instructions for external input files
+
+**Format:** see `qgis_map/workflow.md` (the alum_rock_slope project) as a template. Sections are numbered steps; each step has a prompt block, a "What this does" description, and a files-created list.
+
+**Purpose:** a new session can read `workflow.md` and reconstruct what was done and why — covering the intent and context that `git log` and the layer files alone don't capture.
+
 ## File ownership
 
 Who writes what, and whether humans should edit it:
@@ -181,6 +198,7 @@ Who writes what, and whether humans should edit it:
 | `layers/*.py` | dump (once, bootstrap) | yes — source of truth after first dump | never overwritten by generator |
 | `styles/*.xml` | dump / QGIS Save Style | no | always safe to overwrite; treat as opaque |
 | `project.py` | human | yes | assembles layers into Project |
+| `workflow.md` | LLM + human | yes | updated after each layer or processing step |
 | `helpers.py` | human | yes | project-wide helper functions |
 | `output/` | build / prepare | no | gitignored |
 
