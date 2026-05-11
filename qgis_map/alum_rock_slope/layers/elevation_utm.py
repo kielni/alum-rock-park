@@ -2,6 +2,14 @@ from pathlib import Path
 
 from models import Layer, ProcessingStep
 
+"""
+USGS elevation data from https://apps.nationalmap.gov/downloader/
+
+  -  1/3 arc-second DEM,   Current
+  - GeoTIFF
+
+  Metadata: https://www.sciencebase.gov/catalog/item/68afba8fd4be02645f9b293f
+"""
 elevation_utm = Layer(
     id="elevation_utm",
     name="Elevation (UTM)",
