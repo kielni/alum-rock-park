@@ -233,10 +233,13 @@ Processing History after an interactive run, GDAL/GRASS documentation, or an LLM
 
 ```python
 class ProcessingStep(BaseModel):
-    algorithm: str     # shell command template, e.g. "gdaldem slope {input} {output}"
+    description: str       # plain-English sentence describing what this step produces
+    algorithm: str         # shell command template, e.g. "gdaldem slope {input} {output}"
     depends_on: list[str]  # IDs of layers that are algorithm inputs
-    output: Path       # algorithm output path, e.g. Path("output/slope.tif")
+    output: Path           # algorithm output path, e.g. Path("output/slope.tif")
 ```
+
+Always include a `description` — one sentence saying what the step produces, in plain English. This is the human-readable summary of the algorithm for readers who should not need to parse the shell command.
 
 Only layers with a `ProcessingStep` have a processing step. Layers without one
 (vector files, tile services, the raw elevation raster) are input-only and
@@ -268,6 +271,7 @@ any layer with `slope` in its `depends_on`.
 
 ```python
 class ProcessingStep(BaseModel):
+    description: str       # plain-English sentence describing what this step produces
     algorithm: str         # shell command template
     depends_on: list[str]  # layer IDs that are algorithm inputs
     output: Path           # algorithm output path

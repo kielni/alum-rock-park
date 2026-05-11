@@ -203,8 +203,6 @@ To force a rebuild after commenting layers in or out: `make build-all DIR=<proje
 
 > set the transparency of the slope_class layer to 70%
 
-> this is too bright; I want a color scheme that is colorblind legible and easy to distinguish between classes but not too overwhelming when much of the area is the very steep bucket
-
 > update colors for slope to Color Brewer YlOrBr
 
 **What this does:**
