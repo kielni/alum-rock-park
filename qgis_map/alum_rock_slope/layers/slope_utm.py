@@ -11,7 +11,9 @@ slope_utm = Layer(
     crs="EPSG:26910",
     visible=False,
     processing_step=ProcessingStep(
-        description="Calculate slope in degrees from the UTM-projected elevation raster.",
+        description=(
+            "Calculate slope in degrees from the UTM-projected elevation raster."
+        ),
         algorithm="gdaldem slope {input} {output}",
         depends_on=["elevation_utm"],
         output=Path("data/USGS_slope_utm.tif"),
