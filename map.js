@@ -321,7 +321,31 @@ function createClusterMarkers(map, records) {
     },
   });
 
-  return "other-clusters-circle";
+  return { layerId: "other-clusters-circle", features };
+}
+
+// Zooms/centers the map to fit every named area's polygon plus every
+// cluster marker, so nothing added above starts off-screen. Also resets
+// labelLayerId's minzoom relative to the zoom fitBounds actually lands
+// on, since a fixed minzoom (eg 10) can end up above whatever that turns
+// out to be, forcing an extra manual zoom-in before labels appear.
+// Called once after all sources/layers are in place.
+function fitMapToMarkers(map, geoData, clusterFeatures, labelLayerId) {
+  const bounds = new maptilersdk.LngLatBounds();
+
+  geoData.features.forEach((feature) => {
+    feature.geometry.coordinates[0].forEach((coord) => bounds.extend(coord));
+  });
+  clusterFeatures.forEach((feature) => {
+    bounds.extend(feature.geometry.coordinates);
+  });
+
+  // animate: false makes fitBounds apply synchronously, so getZoom()
+  // below reflects the landed-on zoom rather than mid-animation.
+  map.fitBounds(bounds, { padding: 40, animate: false });
+
+  const fitZoom = map.getZoom();
+  map.setLayerZoomRange(labelLayerId, fitZoom + 2, 24);
 }
 
 function mergeData(geoData, sheetData, workDayCounts) {
