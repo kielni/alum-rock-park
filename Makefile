@@ -13,7 +13,7 @@ lint-py:
 
 gallery:
 	# prereqs
-	#   - set PHOTOS_DIR in local.env
+	#   - set PICTURES_DIR in local.env
 	. ./local.env && uv run python preprocess.py
 
 

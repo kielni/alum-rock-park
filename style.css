@@ -3,7 +3,6 @@
   --color-purple-high: #810f7c;
   --color-purple-moderate: #8856a7;
   --color-purple-minimal: #8c96c6;
-  --color-purple-planned: #9ebcda;
   --color-purple-none: #bfd3e6;
   --color-paper: #ffffff;
   --color-ink-soft: #5b5849;
@@ -56,7 +55,7 @@ body {
 
 /* Explicit sizing so the 2-up grid is correct even if the Bulma CDN link
    fails to load - a raw <img> otherwise renders at full source resolution
-   (iPhone photos are 5712x4284) and overflows the pane. */
+   (iPhone pictures are 5712x4284) and overflows the pane. */
 #gallery .columns.is-multiline {
   display: flex;
   flex-wrap: wrap;
@@ -105,7 +104,7 @@ body {
 .location-tag.tag:hover {
   background-color: var(--color-purple-high);
 }
-.photo-caption {
+.picture-caption {
   font-size: 0.85rem;
   color: var(--color-ink-soft);
   margin-top: 0.25rem;

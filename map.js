@@ -24,37 +24,56 @@ const CATEGORIES = {
   "high recent activity": "#810f7c",
   "moderate recent activity": "#8856a7",
   "minimal recent work": "#8c96c6",
-  "planned priorities": "#9ebcda",
   "no recent activity": "#bfd3e6",
 };
+
+const WORK_DAY_WINDOW_DAYS = 180;
 
 async function loadData() {
   const response = await fetch(HOST + "ARP_areas.geojson");
   return await response.json();
 }
 
-// Unique EXIF work-days per location name, from pictures.json records
-// (see loadPictures() in gallery.js), for the choropleth fallback below.
-function countWorkDays(records) {
-  const daysByLocation = {};
+// Count of unique EXIF day-strings within the last WORK_DAY_WINDOW_DAYS
+// among the given records - shared by the per-area counts below and by
+// createClusterMarkers's per-cluster counts.
+function workDaysInWindow(records) {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - WORK_DAY_WINDOW_DAYS);
+
+  const days = new Set();
   records.forEach((record) => {
-    if (!record.location) return;
-    const day = record.date.slice(0, 10);
-    if (!daysByLocation[record.location]) {
-      daysByLocation[record.location] = new Set();
+    if (new Date(record.date) < cutoff) return;
+    days.add(record.date.slice(0, 10));
+  });
+  return days.size;
+}
+
+// Unique EXIF work-days per named location within the last
+// WORK_DAY_WINDOW_DAYS, from pictures.json records (see loadPictures()
+// in gallery.js) - drives the choropleth color ramp below. Excludes
+// "Area *" cluster locations, which get their own markers (see
+// createClusterMarkers) rather than a named-area color.
+function countWorkDays(records) {
+  const byLocation = {};
+  records.forEach((record) => {
+    if (!record.location || record.location.startsWith("Area ")) return;
+    if (!byLocation[record.location]) {
+      byLocation[record.location] = [];
     }
-    daysByLocation[record.location].add(day);
+    byLocation[record.location].push(record);
   });
 
   const counts = {};
-  Object.keys(daysByLocation).forEach((location) => {
-    counts[location] = daysByLocation[location].size;
+  Object.keys(byLocation).forEach((location) => {
+    counts[location] = workDaysInWindow(byLocation[location]);
   });
   return counts;
 }
 
 // Thresholds are a starting point, not measured against a full season of
-// data yet - tune once more months of photos are processed.
+// data yet - tune once more months of pictures are processed. Scored
+// against the WORK_DAY_WINDOW_DAYS-day window computed above, not all time.
 function categoryForWorkDays(workDays) {
   if (workDays >= 5) return "high recent activity";
   if (workDays >= 2) return "moderate recent activity";
@@ -235,22 +254,93 @@ function createMarkers(map, data) {
   return layerId;
 }
 
+// Groups pictures.json records tagged "Area X" (see
+// cluster_other_pictures() in preprocess.py) by that tag, averages each
+// group's lat/lon for a marker position - the clustering decision
+// already happened in Python; this is just centroid averaging of
+// already-grouped points - and adds one circle+label marker per cluster
+// showing its work-day count, colored the same way as named areas.
+function createClusterMarkers(map, records) {
+  const byCluster = {};
+  records.forEach((record) => {
+    if (!record.location || !record.location.startsWith("Area ")) return;
+    if (!byCluster[record.location]) {
+      byCluster[record.location] = [];
+    }
+    byCluster[record.location].push(record);
+  });
+
+  const features = Object.keys(byCluster).map((location) => {
+    const clusterRecords = byCluster[location];
+    const lat =
+      clusterRecords.reduce((sum, r) => sum + r.lat, 0) / clusterRecords.length;
+    const lon =
+      clusterRecords.reduce((sum, r) => sum + r.lon, 0) / clusterRecords.length;
+    const workDays = workDaysInWindow(clusterRecords);
+
+    return {
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [lon, lat] },
+      properties: {
+        name: location,
+        workDays: workDays,
+        color: CATEGORIES[categoryForWorkDays(workDays)],
+      },
+    };
+  });
+
+  map.addSource("other-clusters", {
+    type: "geojson",
+    data: { type: "FeatureCollection", features },
+  });
+
+  map.addLayer({
+    id: "other-clusters-circle",
+    type: "circle",
+    source: "other-clusters",
+    paint: {
+      "circle-radius": 14,
+      "circle-color": ["get", "color"],
+      "circle-stroke-width": 2,
+      "circle-stroke-color": "#ffffff",
+    },
+  });
+
+  map.addLayer({
+    id: "other-clusters-label",
+    type: "symbol",
+    source: "other-clusters",
+    layout: {
+      "text-field": ["to-string", ["get", "workDays"]],
+      "text-size": 12,
+      "text-font": ["Noto Sans Bold"],
+      "text-allow-overlap": true,
+    },
+    paint: {
+      "text-color": "#ffffff",
+    },
+  });
+
+  return "other-clusters-circle";
+}
+
 function mergeData(geoData, sheetData, workDayCounts) {
   geoData.features.forEach((feature) => {
     const id = feature.properties.id;
     const name = feature.properties.name;
-    if (sheetData[id]) {
-      feature.properties.color = sheetData[id].color;
-      feature.properties.description =
-        sheetData[id].description || "No recent activity.";
+
+    // Color always comes from picture-derived work-day counts (see
+    // countWorkDays above), not the curated sheet - sheetData only
+    // supplies a description override when present.
+    const workDays = (workDayCounts && workDayCounts[name]) || 0;
+    feature.properties.color = CATEGORIES[categoryForWorkDays(workDays)];
+
+    if (sheetData[id] && sheetData[id].description) {
+      feature.properties.description = sheetData[id].description;
     } else {
-      // No curated sheet entry for this area - fall back to work-day
-      // counts derived from photo EXIF dates (see countWorkDays above).
-      const workDays = (workDayCounts && workDayCounts[name]) || 0;
-      feature.properties.color = CATEGORIES[categoryForWorkDays(workDays)];
       feature.properties.description =
         workDays > 0
-          ? `${workDays} work day${workDays === 1 ? "" : "s"} logged from photos.`
+          ? `${workDays} work day${workDays === 1 ? "" : "s"} with pictures.`
           : "";
     }
   });

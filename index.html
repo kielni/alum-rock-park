@@ -53,10 +53,12 @@
 
         const [fillLayerId, outlineLayerId] = drawAreas(map, data);
         const markerLayerId = createMarkers(map, data);
+        const clusterLayerId = createClusterMarkers(map, pictureRecords);
 
         addControls(map, outlineLayerId);
         addFilterClick(map, fillLayerId);
         addFilterClick(map, markerLayerId);
+        addFilterClick(map, clusterLayerId);
       });
     </script>
   </body>
