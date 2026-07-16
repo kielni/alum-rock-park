@@ -9,3 +9,5 @@ config_aws.js
 .venv/
 __pycache__/
 qgis_map/build/
+pictures
+pictures.json

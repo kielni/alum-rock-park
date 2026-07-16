@@ -33,6 +33,35 @@ async function loadData() {
   return await response.json();
 }
 
+// Unique EXIF work-days per location name, from pictures.json records
+// (see loadPictures() in gallery.js), for the choropleth fallback below.
+function countWorkDays(records) {
+  const daysByLocation = {};
+  records.forEach((record) => {
+    if (!record.location) return;
+    const day = record.date.slice(0, 10);
+    if (!daysByLocation[record.location]) {
+      daysByLocation[record.location] = new Set();
+    }
+    daysByLocation[record.location].add(day);
+  });
+
+  const counts = {};
+  Object.keys(daysByLocation).forEach((location) => {
+    counts[location] = daysByLocation[location].size;
+  });
+  return counts;
+}
+
+// Thresholds are a starting point, not measured against a full season of
+// data yet - tune once more months of photos are processed.
+function categoryForWorkDays(workDays) {
+  if (workDays >= 5) return "high recent activity";
+  if (workDays >= 2) return "moderate recent activity";
+  if (workDays >= 1) return "minimal recent work";
+  return "no recent activity";
+}
+
 function drawAreas(map, data) {
   map.addSource("areas", {
     type: "geojson",
@@ -95,6 +124,24 @@ function addPopups(map, layerId) {
   map.on("mouseleave", layerId, function () {
     map.getCanvas().style.cursor = "";
     popup.remove();
+  });
+}
+
+// Clicking a polygon or marker sets the same window.location.hash filter
+// that location-tag chips in the gallery pane use (see currentLocationFilter
+// in gallery.js), so both filter entry points share one state.
+function addFilterClick(map, layerId) {
+  map.on("click", layerId, function (e) {
+    const feature = e.features[0];
+    window.location.hash =
+      "location=" + encodeURIComponent(feature.properties.name);
+  });
+
+  map.on("mouseenter", layerId, function () {
+    map.getCanvas().style.cursor = "pointer";
+  });
+  map.on("mouseleave", layerId, function () {
+    map.getCanvas().style.cursor = "";
   });
 }
 
@@ -188,16 +235,23 @@ function createMarkers(map, data) {
   return layerId;
 }
 
-function mergeData(geoData, sheetData) {
+function mergeData(geoData, sheetData, workDayCounts) {
   geoData.features.forEach((feature) => {
     const id = feature.properties.id;
+    const name = feature.properties.name;
     if (sheetData[id]) {
       feature.properties.color = sheetData[id].color;
       feature.properties.description =
         sheetData[id].description || "No recent activity.";
     } else {
-      feature.properties.color = CATEGORIES["no recent activity"];
-      feature.properties.description = "";
+      // No curated sheet entry for this area - fall back to work-day
+      // counts derived from photo EXIF dates (see countWorkDays above).
+      const workDays = (workDayCounts && workDayCounts[name]) || 0;
+      feature.properties.color = CATEGORIES[categoryForWorkDays(workDays)];
+      feature.properties.description =
+        workDays > 0
+          ? `${workDays} work day${workDays === 1 ? "" : "s"} logged from photos.`
+          : "";
     }
   });
 

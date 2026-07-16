@@ -19,7 +19,7 @@ def load_areas() -> list[Area]:
     Returns a list of (name, geometry) pairs, used to tag a photo's
     GPS point with its enclosing work area.
     """
-    geojson_path: Path = Path(__file__).parent.parent / "ARP_areas.geojson"
+    geojson_path: Path = Path(__file__).parent / "ARP_areas.geojson"
     with open(geojson_path) as f:
         data: dict[str, Any] = json.load(f)
 
@@ -109,7 +109,7 @@ def process_photo(
         image.thumbnail((800, 800))
         image.save(output_dir / path.name, "JPEG", quality=85)
 
-    record =  {
+    record = {
         "filename": path.name,
         "date": date,
         "location": location,
@@ -119,16 +119,44 @@ def process_photo(
     return record
 
 
+def backfill_location_by_day(records: list[dict[str, str | None]]) -> None:
+    """Fill in "Other"/missing locations from the rest of that day's photos.
+
+    If every dated photo's confirmed (non-"Other") location on a given
+    day agrees, apply that location to the day's "Other" or GPS-less
+    photos too - unmatched points are often GPS drift near a work area's
+    boundary, or a shot taken from the trail just outside it, not a
+    genuinely different location. Ambiguous days (more than one distinct
+    confirmed location) are left alone rather than guessed at.
+    """
+    by_day: dict[str, list[dict[str, str | None]]] = {}
+    for record in records:
+        by_day.setdefault(record["date"][:10], []).append(record)
+
+    for day_records in by_day.values():
+        known_locations = {
+            record["location"]
+            for record in day_records
+            if record["location"] not in (None, "Other")
+        }
+        if len(known_locations) != 1:
+            continue
+        (location,) = known_locations
+        for record in day_records:
+            if record["location"] in (None, "Other"):
+                record["location"] = location
+
+
 def build_gallery() -> None:
     """Regenerate the gallery from every photo under PHOTOS_DIR.
 
-    Writes resized thumbnails to gallery/output/pictures and a manifest
-    (date, location tag, description) to gallery/output/photos.json, from
-    scratch on every run.
+    Writes resized thumbnails to pictures/ and a manifest (date,
+    location tag, description) to pictures.json, from scratch on every
+    run.
     """
     photos_dir: Path = Path(os.environ["PHOTOS_DIR"])
-    gallery_dir: Path = Path(__file__).parent / "output"
-    output_dir: Path = gallery_dir / "pictures"
+    project_dir: Path = Path(__file__).parent
+    output_dir: Path = project_dir / "pictures"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     areas: list[Area] = load_areas()
@@ -144,9 +172,10 @@ def build_gallery() -> None:
         if record is not None:
             records.append(record)
 
+    backfill_location_by_day(records)
     records.sort(key=lambda r: r["date"], reverse=True)
 
-    manifest_path: Path = gallery_dir / "photos.json"
+    manifest_path: Path = project_dir / "pictures.json"
     with open(manifest_path, "w") as f:
         json.dump(records, f, indent=2)
 

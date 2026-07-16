@@ -1,13 +1,122 @@
+:root {
+  --color-navy: #191970;
+  --color-purple-high: #810f7c;
+  --color-purple-moderate: #8856a7;
+  --color-purple-minimal: #8c96c6;
+  --color-purple-planned: #9ebcda;
+  --color-purple-none: #bfd3e6;
+  --color-paper: #ffffff;
+  --color-ink-soft: #5b5849;
+}
+
+html,
 body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  background: var(--color-paper);
+  color: #363636;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
 }
 
 #map {
-  position: absolute;
-  top: 0;
-  bottom: 0;
+  position: relative;
+  flex: 1 1 33.333%;
+  min-width: 0;
+}
+
+#gallery {
+  flex: 1 1 66.667%;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 1rem;
+  background: var(--color-paper);
+}
+
+@media (max-width: 768px) {
+  #app {
+    display: block;
+    height: auto;
+  }
+  #map {
+    display: none;
+  }
+  #gallery {
+    width: 100%;
+    height: auto;
+    overflow-y: visible;
+  }
+}
+
+/* gallery components (Bulma base, retheme to navy/purple, see gallery/DESIGN.md Layout) */
+
+/* Explicit sizing so the 2-up grid is correct even if the Bulma CDN link
+   fails to load - a raw <img> otherwise renders at full source resolution
+   (iPhone photos are 5712x4284) and overflows the pane. */
+#gallery .columns.is-multiline {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -0.375rem;
+}
+#gallery .column.is-6 {
+  flex: 0 0 50%;
+  max-width: 50%;
+  box-sizing: border-box;
+  padding: 0.375rem;
+}
+#gallery .image {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--color-purple-none);
+}
+#gallery .image img {
   width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.day-group {
+  margin-bottom: 1.5rem;
+}
+.day-header {
+  color: var(--color-navy);
+}
+.location-group {
+  margin-bottom: 0.75rem;
+}
+.location-tag.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25em 0.75em;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  text-decoration: none;
+  background-color: var(--color-purple-moderate);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.location-tag.tag:hover {
+  background-color: var(--color-purple-high);
+}
+.photo-caption {
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+  margin-top: 0.25rem;
+}
+.filter-notice {
+  margin-bottom: 1rem;
+}
+.loading-state,
+.empty-state {
+  padding: 1rem 0;
+  color: var(--color-ink-soft);
 }
 .maplibregl-popup {
   max-width: 400px;

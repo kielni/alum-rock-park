@@ -1,10 +1,11 @@
 <!doctype html>
-<html>
+<html data-theme="light">
   <head>
     <meta charset="utf-8" />
     <title>Alum Rock Park volunteer work areas</title>
     <script src="config.js"></script>
     <script src="map.js"></script>
+    <script src="gallery.js"></script>
     <meta
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
@@ -14,10 +15,17 @@
       href="https://cdn.maptiler.com/maptiler-sdk-js/v3.10.2/maptiler-sdk.css"
       rel="stylesheet"
     />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bulma@1/css/bulma.min.css"
+      rel="stylesheet"
+    />
     <link href="style.css" rel="stylesheet" />
   </head>
   <body>
-    <div id="map"></div>
+    <div id="app">
+      <div id="map"></div>
+      <div id="gallery"></div>
+    </div>
     <div id="markers"></div>
     <script>
       maptilersdk.config.apiKey = MAP_TILER_API_KEY;
@@ -39,12 +47,16 @@
         const response = await fetch(HOST + "ARP_areas.geojson");
         const geojsonData = await response.json();
         const sheetData = await loadSheetData();
-        const data = mergeData(geojsonData, sheetData);
+        const pictureRecords = await loadPictures();
+        const workDayCounts = countWorkDays(pictureRecords);
+        const data = mergeData(geojsonData, sheetData, workDayCounts);
 
         const [fillLayerId, outlineLayerId] = drawAreas(map, data);
         const markerLayerId = createMarkers(map, data);
 
         addControls(map, outlineLayerId);
+        addFilterClick(map, fillLayerId);
+        addFilterClick(map, markerLayerId);
       });
     </script>
   </body>

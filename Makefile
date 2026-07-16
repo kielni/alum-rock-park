@@ -1,7 +1,20 @@
+.PHONY: lint lint-py gallery sync
+
 lint:
 	npx prettier *.html --write
 	npx prettier *.js --write
 	npx prettier *.css --write
+
+
+lint-py:
+	uv run black claude.py preprocess.py
+	uv run flake8 preprocess.py --max-line-length=88
+
+
+gallery:
+	# prereqs
+	#   - set PHOTOS_DIR in local.env
+	. ./local.env && uv run python preprocess.py
 
 
 sync:
