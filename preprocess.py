@@ -22,9 +22,9 @@ def load_areas() -> list[Area]:
     Returns a list of (name, geometry) pairs, used to tag a photo's
     GPS point with its enclosing work area.
     """
-    # TODO: paths
-    geojson_path: Path = Path(__file__).parent / "ARP_areas.geojson"
-    with open(geojson_path) as f:
+    geojson = Path(os.environ["PROJECT_DIR"]) / "web" / "ARP_areas.geojson"
+    print(f"loading {geojson}")
+    with open(geojson) as f:
         data: dict[str, Any] = json.load(f)
 
     areas: list[Area] = []
@@ -267,7 +267,7 @@ def build_gallery() -> None:
     last run.
     """
     photos_dir: Path = Path(os.environ["PHOTOS_DIR"])
-    project_dir: Path = Path(os.environ["PROJECT_DIR"])
+    project_dir: Path = Path(os.environ["PROJECT_DIR"]) / "web"
     output_dir: Path = project_dir / "photos"
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -277,6 +277,8 @@ def build_gallery() -> None:
         for p in photos_dir.rglob("*")
         if p.suffix.lower() in (".jpg", ".jpeg") and output_dir not in p.parents
     )
+    print(f"read {len(paths)} photos from {photos_dir}")
+    print(f"writing thumbnails to {output_dir}")
 
     records: list[PhotoRecord] = []
     for path in paths:
