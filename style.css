@@ -29,6 +29,12 @@ body {
   min-height: 0;
 }
 
+/* map.html has no #app flex wrapper, so #map needs an explicit height
+   instead of a flex-basis. */
+.map-only #map {
+  height: 100vh;
+}
+
 #gallery {
   flex: 1 1 66.667%;
   min-height: 0;
@@ -42,7 +48,7 @@ body {
     display: block;
     height: auto;
   }
-  #map {
+  #app #map {
     display: none;
   }
   #gallery {
@@ -56,7 +62,7 @@ body {
 
 /* Explicit sizing so the 2-up grid is correct even if the Bulma CDN link
    fails to load - a raw <img> otherwise renders at full source resolution
-   (iPhone pictures are 5712x4284) and overflows the pane. */
+   (iPhone photos are 5712x4284) and overflows the pane. */
 #gallery .columns.is-multiline {
   display: flex;
   flex-wrap: wrap;
@@ -105,7 +111,7 @@ body {
 .location-tag.tag:hover {
   background-color: var(--color-purple-high);
 }
-.picture-caption {
+.photo-caption {
   font-size: 0.85rem;
   color: var(--color-ink-soft);
   margin-top: 0.25rem;
