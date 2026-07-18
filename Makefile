@@ -12,7 +12,9 @@ lint-py:
 
 
 prep:
-	# export photos from Alum Rock Park album to PHOTOS_DIR
+	# get Ente photos (may be from others)
+	. ./local.env && ente export --albums "Alum Rock Park"
+	# overwrite with Photos version (may have additional metadata)
 	. ./local.env && uv run osxphotos export $(PHOTOS_DIR) \
 		--album "Alum Rock Park" \
 		--exiftool \
