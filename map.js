@@ -50,7 +50,7 @@ function workDaysInWindow(records) {
 }
 
 // Unique EXIF work-days per named location within the last
-// WORK_DAY_WINDOW_DAYS, from pictures.json records (see loadPictures()
+// WORK_DAY_WINDOW_DAYS, from photos.json records (see loadPhotos()
 // in gallery.js) - drives the choropleth color ramp below. Excludes
 // "Area *" cluster locations, which get their own markers (see
 // createClusterMarkers) rather than a named-area color.
@@ -72,7 +72,7 @@ function countWorkDays(records) {
 }
 
 // Thresholds are a starting point, not measured against a full season of
-// data yet - tune once more months of pictures are processed. Scored
+// data yet - tune once more months of photos are processed. Scored
 // against the WORK_DAY_WINDOW_DAYS-day window computed above, not all time.
 function categoryForWorkDays(workDays) {
   if (workDays >= 5) return "high recent activity";
@@ -254,8 +254,8 @@ function createMarkers(map, data) {
   return layerId;
 }
 
-// Groups pictures.json records tagged "Area X" (see
-// cluster_other_pictures() in preprocess.py) by that tag, averages each
+// Groups photos.json records tagged "Area X" (see
+// cluster_other_photos() in preprocess.py) by that tag, averages each
 // group's lat/lon for a marker position - the clustering decision
 // already happened in Python; this is just centroid averaging of
 // already-grouped points - and adds one circle+label marker per cluster
@@ -353,7 +353,7 @@ function mergeData(geoData, sheetData, workDayCounts) {
     const id = feature.properties.id;
     const name = feature.properties.name;
 
-    // Color always comes from picture-derived work-day counts (see
+    // Color always comes from photo-derived work-day counts (see
     // countWorkDays above), not the curated sheet - sheetData only
     // supplies a description override when present.
     const workDays = (workDayCounts && workDayCounts[name]) || 0;
@@ -364,7 +364,7 @@ function mergeData(geoData, sheetData, workDayCounts) {
     } else {
       feature.properties.description =
         workDays > 0
-          ? `${workDays} work day${workDays === 1 ? "" : "s"} with pictures.`
+          ? `${workDays} work day${workDays === 1 ? "" : "s"} with photos.`
           : "";
     }
   });

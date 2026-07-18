@@ -1,4 +1,4 @@
-// Renders the recent-first picture stream in #gallery from pictures.json,
+// Renders the recent-first photo stream in #gallery from photos.json,
 // grouped by day then location, with location-tag filtering driven by
 // window.location.hash so map clicks (see addFilterClick in map.js) and
 // tag clicks share one filter state.
@@ -10,8 +10,8 @@ function el(tag, className, text) {
   return node;
 }
 
-async function loadPictures() {
-  const response = await fetch(HOST + "pictures.json");
+async function loadPhotos() {
+  const response = await fetch(HOST + "photos.json");
   return await response.json();
 }
 
@@ -24,7 +24,7 @@ function dayLabel(isoDate) {
 }
 
 // Groups consecutive records sharing the same key, preserving order -
-// pictures.json is already sorted recent-first, so this keeps that order
+// photos.json is already sorted recent-first, so this keeps that order
 // intact rather than clustering by key across the whole list.
 function groupBy(records, keyFn) {
   const groups = [];
@@ -53,17 +53,17 @@ function locationTag(location) {
   return tags;
 }
 
-function pictureCard(record) {
+function photoCard(record) {
   const column = el("div", "column is-6");
   const figure = el("figure", "image");
   const img = document.createElement("img");
-  img.src = HOST + "pictures/" + encodeURIComponent(record.filename);
+  img.src = HOST + "photos/" + encodeURIComponent(record.filename);
   img.alt = record.description || "";
   img.loading = "lazy";
   figure.appendChild(img);
   column.appendChild(figure);
   if (record.description) {
-    column.appendChild(el("p", "picture-caption", record.description));
+    column.appendChild(el("p", "photo-caption", record.description));
   }
   return column;
 }
@@ -74,7 +74,7 @@ function locationGroup(group) {
     wrapper.appendChild(locationTag(group.key));
   }
   const columns = el("div", "columns is-multiline");
-  group.records.forEach((record) => columns.appendChild(pictureCard(record)));
+  group.records.forEach((record) => columns.appendChild(photoCard(record)));
   wrapper.appendChild(columns);
   return wrapper;
 }
@@ -98,7 +98,7 @@ function clearFilterLink() {
 
 function filterNotice(location) {
   const notice = el("div", "notification filter-notice");
-  notice.append("Showing pictures for ");
+  notice.append("Showing photos for ");
   notice.appendChild(el("strong", null, location));
   notice.append(". ");
   notice.appendChild(clearFilterLink());
@@ -108,12 +108,12 @@ function filterNotice(location) {
 function emptyState(filter) {
   const p = el("p", "has-text-grey empty-state");
   if (filter) {
-    p.append("No pictures yet for ");
+    p.append("No photos yet for ");
     p.appendChild(el("strong", null, filter));
     p.append(". ");
     p.appendChild(clearFilterLink());
   } else {
-    p.textContent = "No pictures yet.";
+    p.textContent = "No photos yet.";
   }
   return p;
 }
@@ -145,10 +145,10 @@ async function initGallery() {
   const container = document.getElementById("gallery");
   container.innerHTML = "";
   container.appendChild(
-    el("p", "has-text-grey loading-state", "Loading pictures…"),
+    el("p", "has-text-grey loading-state", "Loading photos…"),
   );
 
-  const records = await loadPictures();
+  const records = await loadPhotos();
   renderGallery(records);
   window.addEventListener("hashchange", () => renderGallery(records));
 }
