@@ -1,9 +1,10 @@
-"""Gallery pipeline: turn source pictures in PICTURES_DIR into web-size
-thumbnails and a pictures.json manifest for the gallery pane."""
+"""Gallery pipeline: turn source photos in PHOTOS_DIR into web-size
+thumbnails and a photos.json manifest for the gallery pane."""
 
 import json
 import math
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -12,17 +13,18 @@ from shapely.geometry import Point, shape
 from shapely.geometry.base import BaseGeometry
 
 Area = tuple[str, BaseGeometry]
-PictureRecord = dict[str, str | float | None]
+PhotoRecord = dict[str, str | float | None]
 
 
 def load_areas() -> list[Area]:
     """Load ARP_areas.geojson polygons as shapely geometries.
 
-    Returns a list of (name, geometry) pairs, used to tag a picture's
+    Returns a list of (name, geometry) pairs, used to tag a photo's
     GPS point with its enclosing work area.
     """
-    geojson_path: Path = Path(__file__).parent / "ARP_areas.geojson"
-    with open(geojson_path) as f:
+    geojson = Path(os.environ["PROJECT_DIR"]) / "web" / "ARP_areas.geojson"
+    print(f"loading {geojson}")
+    with open(geojson) as f:
         data: dict[str, Any] = json.load(f)
 
     areas: list[Area] = []
@@ -58,8 +60,8 @@ def dms_to_decimal(dms: tuple[float, float, float], ref: str) -> float:
     return decimal
 
 
-def read_picture_description(exif: Image.Exif, exif_ifd: dict[int, Any]) -> str | None:
-    """Return a picture's caption from its EXIF tags, if any.
+def read_photo_description(exif: Image.Exif, exif_ifd: dict[int, Any]) -> str | None:
+    """Return a photo's caption from its EXIF tags, if any.
 
     Checks ImageDescription first, then UserComment. Returns None if
     neither tag is present or non-empty.
@@ -79,25 +81,29 @@ def read_picture_description(exif: Image.Exif, exif_ifd: dict[int, Any]) -> str 
     return None
 
 
-def process_picture(
+def process_photo(
     path: Path, areas: list[Area], output_dir: Path
-) -> PictureRecord | None:
-    """Build one gallery record for a picture, resizing it as a side effect.
+) -> PhotoRecord | None:
+    """Build one gallery record for a photo, resizing it as a side effect.
 
-    Extracts date, location, and description from EXIF, resizes the
-    image for web viewing, and writes it to output_dir. Returns None
-    if the picture has no usable date.
+    Extracts date, location, and description from EXIF, and resizes the
+    image for web viewing and writes it to output_dir under a
+    yyyymmdd_hhmmss.jpg name derived from its date - unless that name
+    is already present in output_dir, in which case the existing
+    thumbnail is left alone, so reruns only do resize work for photos
+    added since the last run. Returns None if the photo has no usable
+    date.
     """
     with Image.open(path) as img:
         exif: Image.Exif = img.getexif()
         exif_ifd: dict[int, Any] = exif.get_ifd(ExifTags.IFD.Exif)
         gps_ifd: dict[int, Any] = exif.get_ifd(ExifTags.IFD.GPSInfo)
 
-        date: str | None = exif_ifd.get(36867) or exif.get(306)  # DateTimeOriginal
-        if not date:
+        dt: str | None = exif_ifd.get(36867) or exif.get(306)  # DateTimeOriginal
+        if not dt:
             print(f"skipping {path.name}: no date in EXIF")
             return None
-        date = date.replace(":", "-", 2).replace(" ", "T")
+        dt = dt.replace(":", "-", 2).replace(" ", "T")
 
         location: str | None = None
         lat: float | None = None
@@ -107,35 +113,40 @@ def process_picture(
             lon = dms_to_decimal(gps_ifd[4], gps_ifd.get(3, "E"))
             location = find_location(lon, lat, areas)
 
-        description: str | None = read_picture_description(exif, exif_ifd)
+        description: str | None = read_photo_description(exif, exif_ifd)
 
-        image = ImageOps.exif_transpose(img)
-        image.thumbnail((800, 800))
-        image.save(output_dir / path.name, "JPEG", quality=85)
+        timestamp = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+        filename = timestamp.strftime("%Y%m%d_%H%M%S") + ".jpg"
 
-    record: PictureRecord = {
-        "filename": path.name,
-        "date": date,
+        thumbnail_path = output_dir / filename
+        if not thumbnail_path.exists():
+            print(f"resizing {path} to {filename}")
+            image = ImageOps.exif_transpose(img)
+            image.thumbnail((800, 800))
+            image.save(thumbnail_path, "JPEG", quality=85)
+
+    record: PhotoRecord = {
+        "filename": filename,
+        "date": dt,
         "location": location,
         "lat": lat,
         "lon": lon,
         "description": description,
     }
-    print(record)
     return record
 
 
-def backfill_location_by_day(records: list[PictureRecord]) -> None:
-    """Fill in "Other"/missing locations from the rest of that day's pictures.
+def backfill_location_by_day(records: list[PhotoRecord]) -> None:
+    """Fill in "Other"/missing locations from the rest of that day's photos.
 
-    If every dated picture's confirmed (non-"Other") location on a given
+    If every dated photo's confirmed (non-"Other") location on a given
     day agrees, apply that location to the day's "Other" or GPS-less
-    pictures too - unmatched points are often GPS drift near a work area's
+    photos too - unmatched points are often GPS drift near a work area's
     boundary, or a shot taken from the trail just outside it, not a
     genuinely different location. Ambiguous days (more than one distinct
     confirmed location) are left alone rather than guessed at.
     """
-    by_day: dict[str, list[PictureRecord]] = {}
+    by_day: dict[str, list[PhotoRecord]] = {}
     for record in records:
         by_day.setdefault(record["date"][:10], []).append(record)
 
@@ -169,16 +180,18 @@ def haversine_meters(lat1: float, lon1: float, lat2: float, lon2: float) -> floa
     return 2 * EARTH_RADIUS_METERS * math.asin(math.sqrt(a))
 
 
-def cluster_label(index: int) -> str:
-    """Convert a 1-indexed cluster number to a letter label.
+def cluster_name(records: list[PhotoRecord]) -> str:
+    """Build an "<dates>" label from a cluster's distinct photo days.
 
-    A, B, ..., Z, AA, AB, ... - same scheme as spreadsheet columns.
+    Eg "June 22" for a single-day cluster, "June 22, July 1" once
+    merging (see cluster_other_photos) spans multiple days - so unmapped
+    clusters carry a recognizable date instead of an arbitrary letter.
     """
-    label = ""
-    while index > 0:
-        index, remainder = divmod(index - 1, 26)
-        label = chr(ord("A") + remainder) + label
-    return label
+    names: list[str] = []
+    for day in sorted({record["date"][:10] for record in records}):
+        dt = datetime.strptime(day, "%Y-%m-%d")
+        names.append(f"{dt.strftime('%B')} {dt.day}")
+    return ", ".join(names)
 
 
 def cluster_centroid(cluster: dict[str, Any]) -> None:
@@ -187,21 +200,21 @@ def cluster_centroid(cluster: dict[str, Any]) -> None:
     cluster["lon"] = sum(r["lon"] for r in cluster["records"]) / len(cluster["records"])
 
 
-def cluster_other_pictures(records: list[PictureRecord]) -> None:
-    """Group "Other" pictures into "Area X" locations, in two passes.
+def cluster_other_photos(records: list[PhotoRecord]) -> None:
+    """Group "Other" photos into "Mon 1" locations, in two passes.
 
-    First, every day's "Other" pictures become one cluster - one off-map
+    First, every day's "Other" photos become one cluster - one off-map
     stop is one session, even if GPS wanders a bit within it. Second,
     any two clusters whose centroids are within CLUSTER_RADIUS_METERS
     are merged, repeated until no pair overlaps - so multiple days at
     the same off-map spot end up in one cluster, including transitively
     (A overlaps B, B overlaps C -> A, B, and C all merge, even if A and
     C alone wouldn't have). Mutates each matched record's "location" in
-    place (eg "Area A"), so unmapped GPS points still get a map
+    place (eg "June 22"), so unmapped GPS points still get a map
     marker instead of disappearing into an undifferentiated "Other"
     bucket.
     """
-    by_day: dict[str, list[PictureRecord]] = {}
+    by_day: dict[str, list[PhotoRecord]] = {}
     for record in records:
         if record["location"] != "Other":
             continue
@@ -237,38 +250,44 @@ def cluster_other_pictures(records: list[PictureRecord]) -> None:
             if merged_any:
                 break
 
-    for index, cluster in enumerate(clusters, start=1):
+    for cluster in clusters:
+        name = cluster_name(cluster["records"])
         for record in cluster["records"]:
-            record["location"] = f"Area {cluster_label(index)}"
+            record["location"] = name
 
 
 def build_gallery() -> None:
-    """Regenerate the gallery from every picture under PICTURES_DIR.
+    """Regenerate the gallery from every photo under PHOTOS_DIR.
 
-    Writes resized thumbnails to pictures/ and a manifest (date,
-    location tag, description) to pictures.json, from scratch on every
-    run.
+    Writes resized thumbnails to photos/ and a manifest (date,
+    location tag, description) to photos.json. The manifest is rebuilt
+    from scratch every run (so location/description stay current), but
+    a photo's thumbnail is only (re)generated the first time it's seen
+    (see process_photo) - so reruns only resize photos added since the
+    last run.
     """
-    pictures_dir: Path = Path(os.environ["PICTURES_DIR"])
-    project_dir: Path = Path(__file__).parent
-    output_dir: Path = project_dir / "pictures"
+    photos_dir: Path = Path(os.environ["PHOTOS_DIR"])
+    project_dir: Path = Path(os.environ["PROJECT_DIR"]) / "web"
+    output_dir: Path = project_dir / "photos"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     areas: list[Area] = load_areas()
     paths: list[Path] = sorted(
         p
-        for p in pictures_dir.rglob("*")
+        for p in photos_dir.rglob("*")
         if p.suffix.lower() in (".jpg", ".jpeg") and output_dir not in p.parents
     )
+    print(f"read {len(paths)} photos from {photos_dir}")
+    print(f"writing thumbnails to {output_dir}")
 
-    records: list[PictureRecord] = []
+    records: list[PhotoRecord] = []
     for path in paths:
-        record = process_picture(path, areas, output_dir)
+        record = process_photo(path, areas, output_dir)
         if record is not None:
             records.append(record)
 
     backfill_location_by_day(records)
-    cluster_other_pictures(records)
+    cluster_other_photos(records)
 
     # Newest day first overall, but oldest-to-newest within a day: sort
     # ascending by full timestamp first, then stable-sort by day
@@ -277,11 +296,11 @@ def build_gallery() -> None:
     records.sort(key=lambda r: r["date"])
     records.sort(key=lambda r: r["date"][:10], reverse=True)
 
-    manifest_path: Path = project_dir / "pictures.json"
+    manifest_path: Path = project_dir / "photos.json"
     with open(manifest_path, "w") as f:
         json.dump(records, f, indent=2)
 
-    print(f"wrote {len(records)} pictures to {manifest_path}")
+    print(f"wrote {len(records)} photos to {manifest_path}")
 
 
 if __name__ == "__main__":

@@ -40,3 +40,13 @@ in the map.
 **[print map](https://kielni.s3.us-west-2.amazonaws.com/arp/index.html?print)**
 
 <img src="map_print.png" width=600>
+
+## Local operation
+
+`make sync` - Sync project files to S3.
+
+`make prep` - Get photos from ente album and iOS album
+
+`make gallery` - Generate data file for showing map and photos (Python)
+
+`make sync-photos` - Sync photos and photo metadata to S3.

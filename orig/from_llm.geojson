@@ -1,0 +1,115 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "properties": { "id": 1, "name": "Genesis", "color": "yellow" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80855,37.39900],[-121.80820,37.39905],[-121.80815,37.39880],[-121.80845,37.39875],[-121.80855,37.39900]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 2, "name": "Steve’s valley", "color": "green" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80810,37.39910],[-121.80780,37.39915],[-121.80775,37.39885],[-121.80805,37.39880],[-121.80810,37.39910]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 3, "name": "Steve’s overlook", "color": "red" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80820,37.39885],[-121.80790,37.39885],[-121.80785,37.39855],[-121.80815,37.39855],[-121.80820,37.39885]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 4, "name": "The wedge?", "color": "blue" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80770,37.39870],[-121.80745,37.39860],[-121.80755,37.39840],[-121.80780,37.39850],[-121.80770,37.39870]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 5, "name": "Sierra Vista transition", "color": "red" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80900,37.39910],[-121.80855,37.39910],[-121.80855,37.39890],[-121.80900,37.39890],[-121.80900,37.39910]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 6, "name": "Mich’s ravine", "color": "green" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80845,37.39880],[-121.80820,37.39880],[-121.80820,37.39855],[-121.80845,37.39855],[-121.80845,37.39880]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 7, "name": "Right field", "color": "yellow" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80805,37.39875],[-121.80775,37.39875],[-121.80780,37.39845],[-121.80805,37.39845],[-121.80805,37.39875]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 8, "name": "Left field", "color": "blue" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80840,37.39875],[-121.80810,37.39875],[-121.80810,37.39845],[-121.80840,37.39845],[-121.80840,37.39875]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 9, "name": "Big Oaks switchbacks", "color": "green" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80900,37.39870],[-121.80865,37.39870],[-121.80865,37.39840],[-121.80900,37.39840],[-121.80900,37.39870]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 10, "name": "Bathtub seep", "color": "yellow" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80885,37.39835],[-121.80855,37.39835],[-121.80855,37.39805],[-121.80885,37.39805],[-121.80885,37.39835]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 11, "name": "Horseshoe field", "color": "red" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80845,37.39835],[-121.80815,37.39835],[-121.80815,37.39805],[-121.80845,37.39805],[-121.80845,37.39835]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 12, "name": "The south face", "color": "yellow" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80780,37.39845],[-121.80745,37.39845],[-121.80745,37.39805],[-121.80780,37.39805],[-121.80780,37.39845]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 13, "name": "Buckeye draw", "color": "red" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80745,37.39845],[-121.80715,37.39845],[-121.80715,37.39810],[-121.80745,37.39810],[-121.80745,37.39845]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 14, "name": "Seven palms", "color": "red" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80920,37.39815],[-121.80905,37.39815],[-121.80905,37.39785],[-121.80920,37.39785],[-121.80920,37.39815]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 15, "name": "Pine gulch", "color": "green" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80905,37.39820],[-121.80880,37.39820],[-121.80880,37.39790],[-121.80905,37.39790],[-121.80905,37.39820]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 16, "name": "Davis Lundy’s horse ranch (including the homestead)", "color": "blue" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80860,37.39800],[-121.80815,37.39800],[-121.80815,37.39760],[-121.80860,37.39760],[-121.80860,37.39800]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 17, "name": "Vols precipice", "color": "yellow" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80815,37.39785],[-121.80775,37.39785],[-121.80775,37.39760],[-121.80815,37.39760],[-121.80815,37.39785]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 18, "name": "Wishful thinking", "color": "blue" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80775,37.39785],[-121.80735,37.39785],[-121.80735,37.39755],[-121.80775,37.39755],[-121.80775,37.39785]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 19, "name": "Ain’t got no time for that", "color": "green" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80735,37.39785],[-121.80705,37.39785],[-121.80705,37.39760],[-121.80735,37.39760],[-121.80735,37.39785]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 20, "name": "Weather loop", "color": "yellow" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80620,37.39830],[-121.80580,37.39830],[-121.80580,37.39800],[-121.80620,37.39800],[-121.80620,37.39830]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 21, "name": "Soap lily flats", "color": "red" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80550,37.39805],[-121.80525,37.39805],[-121.80525,37.39780],[-121.80550,37.39780],[-121.80550,37.39805]
+      ]]}},
+
+    { "type": "Feature", "properties": { "id": 22, "name": "Rangers roost", "color": "blue" },
+      "geometry": { "type": "Polygon", "coordinates": [[
+        [-121.80510,37.39810],[-121.80485,37.39810],[-121.80485,37.39790],[-121.80510,37.39790],[-121.80510,37.39810]
+      ]]}}
+
+  ]
+}
