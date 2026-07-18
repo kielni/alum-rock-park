@@ -22,6 +22,7 @@ def load_areas() -> list[Area]:
     Returns a list of (name, geometry) pairs, used to tag a photo's
     GPS point with its enclosing work area.
     """
+    # TODO: paths
     geojson_path: Path = Path(__file__).parent / "ARP_areas.geojson"
     with open(geojson_path) as f:
         data: dict[str, Any] = json.load(f)
@@ -80,46 +81,29 @@ def read_photo_description(exif: Image.Exif, exif_ifd: dict[int, Any]) -> str | 
     return None
 
 
-def unique_filename(base: str, used_filenames: set[str]) -> str:
-    """Return base, or base with a -2, -3, ... suffix if already taken.
-
-    Guards against two photos landing on the same yyyymmdd_hhmmss.jpg
-    name (eg a burst of shots within the same second).
-    """
-    if base not in used_filenames:
-        used_filenames.add(base)
-        return base
-
-    stem, ext = base.rsplit(".", 1)
-    counter = 2
-    candidate = f"{stem}-{counter}.{ext}"
-    while candidate in used_filenames:
-        counter += 1
-        candidate = f"{stem}-{counter}.{ext}"
-    used_filenames.add(candidate)
-    return candidate
-
-
 def process_photo(
-    path: Path, areas: list[Area], output_dir: Path, used_filenames: set[str]
+    path: Path, areas: list[Area], output_dir: Path
 ) -> PhotoRecord | None:
     """Build one gallery record for a photo, resizing it as a side effect.
 
-    Extracts date, location, and description from EXIF, resizes the
-    image for web viewing, and writes it to output_dir under a
-    yyyymmdd_hhmmss.jpg name derived from its date (see unique_filename
-    for collisions). Returns None if the photo has no usable date.
+    Extracts date, location, and description from EXIF, and resizes the
+    image for web viewing and writes it to output_dir under a
+    yyyymmdd_hhmmss.jpg name derived from its date - unless that name
+    is already present in output_dir, in which case the existing
+    thumbnail is left alone, so reruns only do resize work for photos
+    added since the last run. Returns None if the photo has no usable
+    date.
     """
     with Image.open(path) as img:
         exif: Image.Exif = img.getexif()
         exif_ifd: dict[int, Any] = exif.get_ifd(ExifTags.IFD.Exif)
         gps_ifd: dict[int, Any] = exif.get_ifd(ExifTags.IFD.GPSInfo)
 
-        date: str | None = exif_ifd.get(36867) or exif.get(306)  # DateTimeOriginal
-        if not date:
+        dt: str | None = exif_ifd.get(36867) or exif.get(306)  # DateTimeOriginal
+        if not dt:
             print(f"skipping {path.name}: no date in EXIF")
             return None
-        date = date.replace(":", "-", 2).replace(" ", "T")
+        dt = dt.replace(":", "-", 2).replace(" ", "T")
 
         location: str | None = None
         lat: float | None = None
@@ -131,23 +115,25 @@ def process_photo(
 
         description: str | None = read_photo_description(exif, exif_ifd)
 
-        timestamp = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
-        base_filename = timestamp.strftime("%Y%m%d_%H%M%S") + ".jpg"
-        filename = unique_filename(base_filename, used_filenames)
+        timestamp = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+        filename = timestamp.strftime("%Y%m%d_%H%M%S") + ".jpg"
 
-        image = ImageOps.exif_transpose(img)
-        image.thumbnail((800, 800))
-        image.save(output_dir / filename, "JPEG", quality=85)
+        thumbnail_path = output_dir / filename
+        if not thumbnail_path.exists():
+            print(f"resizing {path} to {filename}")
+            image = ImageOps.exif_transpose(img)
+            image.thumbnail((800, 800))
+            image.save(thumbnail_path, "JPEG", quality=85)
 
     record: PhotoRecord = {
         "filename": filename,
-        "date": date,
+        "date": dt,
         "location": location,
         "lat": lat,
         "lon": lon,
         "description": description,
     }
-    print(record)
+    # print(record)
     return record
 
 
@@ -195,16 +181,18 @@ def haversine_meters(lat1: float, lon1: float, lat2: float, lon2: float) -> floa
     return 2 * EARTH_RADIUS_METERS * math.asin(math.sqrt(a))
 
 
-def cluster_label(index: int) -> str:
-    """Convert a 1-indexed cluster number to a letter label.
+def cluster_name(records: list[PhotoRecord]) -> str:
+    """Build an "<dates>" label from a cluster's distinct photo days.
 
-    A, B, ..., Z, AA, AB, ... - same scheme as spreadsheet columns.
+    Eg "June 22" for a single-day cluster, "June 22, July 1" once
+    merging (see cluster_other_photos) spans multiple days - so unmapped
+    clusters carry a recognizable date instead of an arbitrary letter.
     """
-    label = ""
-    while index > 0:
-        index, remainder = divmod(index - 1, 26)
-        label = chr(ord("A") + remainder) + label
-    return label
+    names: list[str] = []
+    for day in sorted({record["date"][:10] for record in records}):
+        dt = datetime.strptime(day, "%Y-%m-%d")
+        names.append(f"{dt.strftime('%B')} {dt.day}")
+    return ", ".join(names)
 
 
 def cluster_centroid(cluster: dict[str, Any]) -> None:
@@ -214,7 +202,7 @@ def cluster_centroid(cluster: dict[str, Any]) -> None:
 
 
 def cluster_other_photos(records: list[PhotoRecord]) -> None:
-    """Group "Other" photos into "Area X" locations, in two passes.
+    """Group "Other" photos into "Mon 1" locations, in two passes.
 
     First, every day's "Other" photos become one cluster - one off-map
     stop is one session, even if GPS wanders a bit within it. Second,
@@ -223,7 +211,7 @@ def cluster_other_photos(records: list[PhotoRecord]) -> None:
     the same off-map spot end up in one cluster, including transitively
     (A overlaps B, B overlaps C -> A, B, and C all merge, even if A and
     C alone wouldn't have). Mutates each matched record's "location" in
-    place (eg "Area A"), so unmapped GPS points still get a map
+    place (eg "June 22"), so unmapped GPS points still get a map
     marker instead of disappearing into an undifferentiated "Other"
     bucket.
     """
@@ -263,20 +251,24 @@ def cluster_other_photos(records: list[PhotoRecord]) -> None:
             if merged_any:
                 break
 
-    for index, cluster in enumerate(clusters, start=1):
+    for cluster in clusters:
+        name = cluster_name(cluster["records"])
         for record in cluster["records"]:
-            record["location"] = f"Area {cluster_label(index)}"
+            record["location"] = name
 
 
 def build_gallery() -> None:
     """Regenerate the gallery from every photo under PHOTOS_DIR.
 
     Writes resized thumbnails to photos/ and a manifest (date,
-    location tag, description) to photos.json, from scratch on every
-    run.
+    location tag, description) to photos.json. The manifest is rebuilt
+    from scratch every run (so location/description stay current), but
+    a photo's thumbnail is only (re)generated the first time it's seen
+    (see process_photo) - so reruns only resize photos added since the
+    last run.
     """
     photos_dir: Path = Path(os.environ["PHOTOS_DIR"])
-    project_dir: Path = Path(__file__).parent
+    project_dir: Path = Path(os.environ["PROJECT_DIR"])
     output_dir: Path = project_dir / "photos"
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -288,9 +280,8 @@ def build_gallery() -> None:
     )
 
     records: list[PhotoRecord] = []
-    used_filenames: set[str] = set()
     for path in paths:
-        record = process_photo(path, areas, output_dir, used_filenames)
+        record = process_photo(path, areas, output_dir)
         if record is not None:
             records.append(record)
 

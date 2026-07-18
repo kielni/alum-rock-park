@@ -166,6 +166,12 @@ section it implements.
           columns do: AA, AB, ...), so unmapped GPS points still get a
           map marker (see Outputs) instead of disappearing into one
           undifferentiated "Other" bucket
+        - follow-up fix: letters (cluster_label()) replaced with a
+          cluster_name() built from the cluster's own distinct EXIF
+          days (eg "Area Jun 22" for a single day, "Area Jun 22, Jul 1"
+          once merging spans multiple days), so an unmapped area's name
+          is a date a volunteer recognizes rather than an arbitrary
+          letter
         - re-verified: 17 "Other" -> 4 day-respecting clusters (sizes
           3/7/2/5 for A/B/C/D), all 34 photos still accounted for
         - thumbnail filenames changed from the original filename (eg

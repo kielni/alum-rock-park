@@ -29,6 +29,12 @@ const CATEGORIES = {
 
 const WORK_DAY_WINDOW_DAYS = 180;
 
+// Matches an unmapped-cluster location (eg "June 22" or "June 22, July
+// 1" - see cluster_name() in preprocess.py) as opposed to a named work
+// area (eg "Pine gulch"), which never starts with a capitalized word
+// followed by a number.
+const CLUSTER_LOCATION_PATTERN = /^[A-Z][a-z]+ \d+/;
+
 async function loadData() {
   const response = await fetch(HOST + "ARP_areas.geojson");
   return await response.json();
@@ -52,12 +58,13 @@ function workDaysInWindow(records) {
 // Unique EXIF work-days per named location within the last
 // WORK_DAY_WINDOW_DAYS, from photos.json records (see loadPhotos()
 // in gallery.js) - drives the choropleth color ramp below. Excludes
-// "Area *" cluster locations, which get their own markers (see
+// unmapped-cluster locations, which get their own markers (see
 // createClusterMarkers) rather than a named-area color.
 function countWorkDays(records) {
   const byLocation = {};
   records.forEach((record) => {
-    if (!record.location || record.location.startsWith("Area ")) return;
+    if (!record.location || CLUSTER_LOCATION_PATTERN.test(record.location))
+      return;
     if (!byLocation[record.location]) {
       byLocation[record.location] = [];
     }
@@ -112,6 +119,22 @@ function drawAreas(map, data) {
   });
 
   return ["areas-fill", "areas-outline"];
+}
+
+// Sets the outline of the polygon whose "name" matches location to bright
+// green, and every other area back to the default outline color. Driven
+// by gallery.js's "location-in-view" event (see index.html), fired when a
+// location-tag chip scrolls into view in the gallery pane - so the map
+// calls out whichever area's photos are currently on screen. A location
+// with no matching polygon (eg an unmapped-cluster date like "June 22")
+// just leaves every polygon at the default color.
+function highlightArea(map, outlineLayerId, location) {
+  map.setPaintProperty(outlineLayerId, "line-color", [
+    "case",
+    ["==", ["get", "name"], location || ""],
+    "#00ff00",
+    "#333333",
+  ]);
 }
 
 function addPopups(map, layerId) {
@@ -254,16 +277,17 @@ function createMarkers(map, data) {
   return layerId;
 }
 
-// Groups photos.json records tagged "Area X" (see
-// cluster_other_photos() in preprocess.py) by that tag, averages each
-// group's lat/lon for a marker position - the clustering decision
+// Groups photos.json records tagged with an unmapped-cluster location
+// (see cluster_other_photos() in preprocess.py) by that tag, averages
+// each group's lat/lon for a marker position - the clustering decision
 // already happened in Python; this is just centroid averaging of
 // already-grouped points - and adds one circle+label marker per cluster
 // showing its work-day count, colored the same way as named areas.
 function createClusterMarkers(map, records) {
   const byCluster = {};
   records.forEach((record) => {
-    if (!record.location || !record.location.startsWith("Area ")) return;
+    if (!record.location || !CLUSTER_LOCATION_PATTERN.test(record.location))
+      return;
     if (!byCluster[record.location]) {
       byCluster[record.location] = [];
     }
@@ -299,9 +323,9 @@ function createClusterMarkers(map, records) {
     type: "circle",
     source: "other-clusters",
     paint: {
-      "circle-radius": 14,
+      "circle-radius": 10,
       "circle-color": ["get", "color"],
-      "circle-stroke-width": 2,
+      "circle-stroke-width": 1,
       "circle-stroke-color": "#ffffff",
     },
   });
@@ -312,7 +336,7 @@ function createClusterMarkers(map, records) {
     source: "other-clusters",
     layout: {
       "text-field": ["to-string", ["get", "workDays"]],
-      "text-size": 12,
+      "text-size": 10,
       "text-font": ["Noto Sans Bold"],
       "text-allow-overlap": true,
     },

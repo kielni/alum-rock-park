@@ -118,6 +118,35 @@ function emptyState(filter) {
   return p;
 }
 
+// Fires a "location-in-view" event on window (see index.html, which owns
+// the map instance) whenever a location-tag chip scrolls into #gallery's
+// viewport, so map.js can highlight the matching polygon. Re-observes
+// current .location-tag elements each render, since renderGallery replaces
+// them wholesale.
+let tagObserver = null;
+
+function observeLocationTags() {
+  if (tagObserver) tagObserver.disconnect();
+
+  tagObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        window.dispatchEvent(
+          new CustomEvent("location-in-view", {
+            detail: entry.target.textContent,
+          }),
+        );
+      });
+    },
+    { root: document.getElementById("gallery") },
+  );
+
+  document
+    .querySelectorAll(".location-tag")
+    .forEach((tag) => tagObserver.observe(tag));
+}
+
 function renderGallery(records) {
   const container = document.getElementById("gallery");
   container.innerHTML = "";
@@ -139,6 +168,8 @@ function renderGallery(records) {
   groupBy(filtered, (record) => record.date.slice(0, 10)).forEach((day) => {
     container.appendChild(dayGroup(day));
   });
+
+  observeLocationTags();
 }
 
 async function initGallery() {
