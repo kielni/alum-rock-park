@@ -61,9 +61,10 @@
         addFilterClick(map, markerLayerId);
         addFilterClick(map, clusterLayerId);
         fitMapToMarkers(map, data, clusterFeatures, markerLayerId);
+        highlightFeature(map, photoRecords[0].location);
 
         window.addEventListener("location-in-view", (e) => {
-          highlightArea(map, outlineLayerId, e.detail);
+          highlightFeature(map, e.detail.textContent);
         });
       });
     </script>

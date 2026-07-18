@@ -121,19 +121,25 @@ function drawAreas(map, data) {
   return ["areas-fill", "areas-outline"];
 }
 
-// Sets the outline of the polygon whose "name" matches location to bright
-// green, and every other area back to the default outline color. Driven
-// by gallery.js's "location-in-view" event (see index.html), fired when a
-// location-tag chip scrolls into view in the gallery pane - so the map
-// calls out whichever area's photos are currently on screen. A location
-// with no matching polygon (eg an unmapped-cluster date like "June 22")
-// just leaves every polygon at the default color.
-function highlightArea(map, outlineLayerId, location) {
-  map.setPaintProperty(outlineLayerId, "line-color", [
+// Sets the paint property of whichever layer matches eventDetail's
+// location to bright green for the matching feature, default color for
+// the rest - "areas-outline"/line-color/"#333333" for a named area, or
+// "other-clusters-circle"/circle-stroke-color/"#ffffff" for an unmapped
+// cluster (see CLUSTER_LOCATION_PATTERN). Driven by gallery.js's
+// "location-in-view" event (see index.html), fired with the
+// location-tag <a> element itself when it scrolls into view in the
+// gallery pane, so the map calls out whichever area's photos are
+// currently on screen.
+function highlightFeature(map, name) {
+  const isCluster = CLUSTER_LOCATION_PATTERN.test(name);
+  const layerId = isCluster ? "other-clusters-circle" : "areas-outline";
+  const paintProperty = isCluster ? "circle-stroke-color" : "line-color";
+
+  map.setPaintProperty(layerId, paintProperty, [
     "case",
-    ["==", ["get", "name"], location || ""],
+    ["==", ["get", "name"], name],
     "#00ff00",
-    "#333333",
+    isCluster ? "#ffffff" : "#333333",
   ]);
 }
 

@@ -133,7 +133,6 @@ def process_photo(
         "lon": lon,
         "description": description,
     }
-    # print(record)
     return record
 
 

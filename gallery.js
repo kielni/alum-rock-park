@@ -134,7 +134,7 @@ function observeLocationTags() {
         if (!entry.isIntersecting) return;
         window.dispatchEvent(
           new CustomEvent("location-in-view", {
-            detail: entry.target.textContent,
+            detail: entry.target,
           }),
         );
       });
