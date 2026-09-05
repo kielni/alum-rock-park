@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Alum Rock Park Starter Plant Guide</title>
+    <style>
+      :root {
+        --moss: #2f4a3a;
+        --moss-dark: #1f3327;
+        --bark: #6b4a2f;
+        --clay: #b5511e;
+        --gold: #c79a2e;
+        --paper: #f6f3e9;
+        --ink: #25281f;
+        --line: #c9c1a8;
+        --card-native: #eef1e6;
+        --card-invasive: #f4e9de;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background: #888;
+        font-family: "Source Sans Pro", Arial, sans-serif;
+        color: var(--ink);
+      }
+      .page {
+        width: 8.5in;
+        min-height: 11in;
+        background: var(--paper);
+        margin: 0 auto 20px auto;
+        padding: 0.4in 0.5in;
+        position: relative;
+        page-break-after: always;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+      }
+      .page:last-child {
+        page-break-after: auto;
+      }
+      @media print {
+        body {
+          background: none;
+        }
+        .page {
+          margin: 0;
+          box-shadow: none;
+          width: auto;
+          min-height: auto;
+        }
+        @page {
+          size: letter;
+          margin: 0;
+        }
+      }
+
+      /* ---------- Header / masthead ---------- */
+      .masthead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 3px solid var(--moss);
+        padding-bottom: 9px;
+        margin-bottom: 12px;
+        gap: 14px;
+      }
+      .masthead h1 {
+        font-family: "Georgia", "Times New Roman", serif;
+        font-weight: 700;
+        font-size: 28px;
+        line-height: 1.05;
+        color: var(--moss-dark);
+        margin: 0;
+        white-space: nowrap;
+      }
+      .masthead .sub {
+        font-size: 12px;
+        color: var(--bark);
+        margin-top: 4px;
+        font-style: normal;
+        line-height: 1.3;
+      }
+      .badge-oak {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 auto;
+      }
+
+      .why {
+        background: var(--moss-dark);
+        color: var(--paper);
+        border-radius: 4px;
+        padding: 10px 16px;
+        font-size: 13.5px;
+        line-height: 1.4;
+        margin-bottom: 14px;
+      }
+      .why b {
+        color: var(--gold);
+      }
+
+      .section-label {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin: 2px 0 10px 0;
+      }
+      .section-label h2 {
+        font-family: "Georgia", serif;
+        font-size: 18px;
+        margin: 0;
+        color: var(--ink);
+      }
+      .section-label.native h2 {
+        border-left: 5px solid var(--moss);
+        padding-left: 8px;
+      }
+      .section-label.invasive h2 {
+        border-left: 5px solid var(--clay);
+        padding-left: 8px;
+      }
+      .section-label .note {
+        font-size: 11px;
+        color: #5a5645;
+      }
+
+      /* ---------- Grid ---------- */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        padding: 9px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      .card.native {
+        background: var(--card-native);
+        border-left: 4px solid var(--moss);
+      }
+      .card.invasive {
+        background: var(--card-invasive);
+        border-left: 4px solid var(--clay);
+      }
+
+      .photo-ph {
+        width: 100%;
+        aspect-ratio: 1/1;
+        background: repeating-linear-gradient(
+          45deg,
+          #dcd6c4,
+          #dcd6c4 6px,
+          #cfc8ae 6px,
+          #cfc8ae 12px
+        );
+        border: 1px dashed #9a927a;
+        border-radius: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b6550;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+      }
+      .photo-ph img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        inset: 0;
+      }
+      .lifecycle-badge {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 24px;
+        height: 24px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        color: #fff;
+        border: 1.5px solid rgba(255, 255, 255, 0.8);
+      }
+      .lifecycle-badge.A {
+        background: var(--gold);
+        color: #3a2e05;
+      }
+      .lifecycle-badge.P {
+        background: var(--bark);
+      }
+
+      .concern-flag {
+        position: absolute;
+        top: 5px;
+        right: 6px;
+        font-size: 17px;
+        line-height: 1;
+      }
+
+      .names {
+        margin-top: 1px;
+        line-height: 1.25;
+      }
+      .common {
+        font-weight: 700;
+        font-size: 13.5px;
+      }
+      .sci {
+        font-style: italic;
+        font-size: 11px;
+        color: #4a4638;
+      }
+      .desc {
+        font-size: 10.5px;
+        line-height: 1.35;
+        color: #3a3728;
+      }
+
+      /* ---------- Key ---------- */
+      .key {
+        margin-top: 16px;
+        border-top: 2px solid var(--line);
+        padding-top: 12px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 24px;
+      }
+      .key h3 {
+        font-family: "Georgia", serif;
+        font-size: 15px;
+        margin: 0 0 5px 0;
+        grid-column: 1 / -1;
+      }
+      .key-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+      }
+      .key-item .swatch {
+        width: 22px;
+        height: 22px;
+        flex: 0 0 auto;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+      }
+      .key-item .swatch.A {
+        background: var(--gold);
+        color: #3a2e05;
+      }
+      .key-item .swatch.P {
+        background: var(--bark);
+      }
+      .key-item .emoji {
+        font-size: 16px;
+        width: 22px;
+        text-align: center;
+        flex: 0 0 auto;
+      }
+      .key-item b {
+        font-weight: 700;
+      }
+
+      /* ---------- CTA ---------- */
+      .cta {
+        margin-top: 16px;
+        background: var(--moss);
+        color: var(--paper);
+        border-radius: 4px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .cta .txt h3 {
+        margin: 0 0 4px 0;
+        font-family: "Georgia", serif;
+        font-size: 17px;
+      }
+      .cta .txt p {
+        margin: 0;
+        font-size: 12.5px;
+        line-height: 1.45;
+        max-width: 4.7in;
+      }
+      .cta .contact {
+        font-size: 14px;
+        font-weight: 700;
+        background: var(--gold);
+        color: #3a2e05;
+        padding: 9px 16px;
+        border-radius: 3px;
+        white-space: nowrap;
+      }
+
+      .footer-note {
+        margin-top: 12px;
+        font-size: 11px;
+        color: #5a5645;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ================= PAGE 1 : FRONT ================= -->
+    <div class="page">
+      <div class="masthead">
+        <div>
+          <h1>Alum Rock Park: Habitat Restoration</h1>
+          <div class="sub">
+            Key plants you're likely to see in San José's Alum Rock Park
+          </div>
+        </div>
+        <svg class="badge-oak" viewBox="0 0 64 64">
+          <circle
+            cx="32"
+            cy="32"
+            r="30"
+            fill="none"
+            stroke="#2f4a3a"
+            stroke-width="2"
+          />
+          <path
+            d="M32 12c-2 6-8 8-8 16 0 5 3 8 3 12 0 3-2 4-2 4h14s-2-1-2-4c0-4 3-7 3-12 0-8-6-10-8-16z"
+            fill="#2f4a3a"
+          />
+          <ellipse cx="32" cy="46" rx="4" ry="6" fill="#c79a2e" />
+        </svg>
+      </div>
+
+      <div class="why">
+        <b>Why this work matters:</b> Trail Crew volunteers remove invasive
+        plants so native species can recover and fire fuel is reduced —
+        protecting San José's oldest park for wildlife and visitors alike.
+      </div>
+
+      <div class="section-label native">
+        <h2>Native Plants — Let Them Grow</h2>
+        <span class="note">these support the park's ecosystem</span>
+      </div>
+
+      <div class="grid">
+        <!-- Oaks -->
+        <div class="card native">
+          <div class="photo-ph" id="photo-oak">
+            <span class="lifecycle-badge P">P</span
+            ><img src="oak.jpg" alt="Coast live oak" />
+          </div>
+          <div class="names">
+            <span class="common">Oaks</span>
+            <span class="sci">Quercus spp.</span>
+          </div>
+          <div class="desc">
+            Evergreen coast live oaks and deciduous valley and blue oaks. These
+            iconic trees anchor the whole ecosystem, feeding and sheltering more
+            wildlife than almost any other native plant.
+          </div>
+        </div>
+
+        <!-- Coyote brush -->
+        <div class="card native">
+          <div class="photo-ph" id="photo-coyote-brush">
+            <span class="lifecycle-badge P">P</span
+            ><img src="coyote_brush.jpg" alt="Coyote brush" />
+          </div>
+          <div class="names">
+            <span class="common">Coyote Brush</span>
+            <span class="sci">Baccharis pilularis</span>
+          </div>
+          <div class="desc">
+            A small-leaved evergreen shrub with fuzzy white seed heads in fall.
+            It's a keystone species, hosting far more insects, birds, and other
+            wildlife than most other native plants.
+          </div>
+        </div>
+
+        <!-- California sagebrush -->
+        <div class="card native">
+          <div class="photo-ph" id="photo-sagebrush">
+            <span class="lifecycle-badge P">P</span
+            ><img src="ca_sagebrush.jpg" alt="California sagebrush" />
+          </div>
+          <div class="names">
+            <span class="common">California Sagebrush</span>
+            <span class="sci">Artemisia californica</span>
+          </div>
+          <div class="desc">
+            A soft shrub with delicate, silvery grey-green foliage. Brushing the
+            leaves releases a sage-like scent, making it easy to identify by
+            smell alone.
+          </div>
+        </div>
+
+        <!-- Vinegar weed -->
+        <div class="card native">
+          <div class="photo-ph" id="photo-vinegar-weed">
+            <span class="lifecycle-badge A">A</span
+            ><img src="vinegar_weed.jpg" alt="Vinegar weed" />
+          </div>
+          <div class="names">
+            <span class="common">Vinegar Weed</span>
+            <span class="sci">Trichostema lanceolatum</span>
+          </div>
+          <div class="desc">
+            A low, sticky herb whose leaves smell strongly of vinegar when
+            crushed. It's tough enough to keep blooming through the driest part
+            of late summer, when little else is flowering.
+          </div>
+        </div>
+
+        <!-- Tarweed -->
+        <div class="card native">
+          <div class="photo-ph" id="photo-tarweed">
+            <span class="lifecycle-badge A">A</span
+            ><img src="tarweed.jpg" alt="Tarweed" />
+          </div>
+          <div class="names">
+            <span class="common">Tarweed</span>
+            <span class="sci">Holocarpha virgata</span>
+          </div>
+          <div class="desc">
+            A sticky-stemmed herb with cheerful yellow flowers. It blooms late
+            into the dry season, offering a rare source of nectar when most
+            other plants have gone dormant.
+          </div>
+        </div>
+
+        <!-- Poison oak -->
+        <div class="card native">
+          <div class="photo-ph" id="photo-poison-oak">
+            <span class="lifecycle-badge P">P</span
+            ><img src="poison_oak.jpg" alt="Poison oak" />
+          </div>
+          <div class="names">
+            <span class="common">Poison Oak</span>
+            <span class="sci">Toxicodendron diversilobum</span>
+          </div>
+          <div class="desc">
+            <b>Do not touch.</b> Its oils cause an itchy rash in most people,
+            but birds and deer rely on its berries and leaves. Look for its
+            bright red color in fall.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PAGE 2 : BACK ================= -->
+    <div class="page">
+      <div class="section-label invasive">
+        <h2>Invasive Plants — Removal Targets</h2>
+        <span class="note">pull these to help natives recover</span>
+      </div>
+
+      <div class="grid">
+        <!-- Milk thistle -->
+        <div class="card invasive">
+          <div class="photo-ph" id="photo-milk-thistle">
+            <span class="lifecycle-badge A">A</span
+            ><img src="milk_thistle.jpg" alt="Milk thistle" />
+          </div>
+          <div class="names">
+            <span class="common">Milk Thistle</span>
+            <span class="sci">Silybum marianum</span>
+          </div>
+          <div class="desc">
+            A spiny plant with white-marbled leaves and purple flower heads. It
+            spreads quickly by seed and crowds out natives, so pull it before it
+            flowers and add it to compost.
+          </div>
+        </div>
+
+        <!-- Italian thistle -->
+        <div class="card invasive">
+          <div class="photo-ph" id="photo-italian-thistle">
+            <span class="lifecycle-badge A">A</span
+            ><img src="italian_thistle.jpg" alt="Italian thistle" />
+          </div>
+          <div class="names">
+            <span class="common">Italian Thistle</span>
+            <span class="sci">Carduus pycnocephalus</span>
+          </div>
+          <div class="desc">
+            A spiny plant with tall stalks and clustered pink-purple flowers. It
+            forms dense stands that block trails and crowd out natives, so dig
+            it up before it flowers.
+          </div>
+        </div>
+
+        <!-- White horehound -->
+        <div class="card invasive">
+          <div class="photo-ph" id="photo-white-horehound">
+            <span class="lifecycle-badge P">P</span
+            ><img src="horehound.jpg" alt="White horehound" />
+          </div>
+          <div class="names">
+            <span class="common">White Horehound</span>
+            <span class="sci">Marrubium vulgare</span>
+          </div>
+          <div class="desc">
+            A plant with fuzzy, wrinkled grey-green leaves and a minty smell. It
+            spreads aggressively along disturbed ground and regrows from its
+            roots, so dig up the whole plant.
+          </div>
+        </div>
+
+        <!-- Mustard -->
+        <div class="card invasive">
+          <div class="photo-ph" id="photo-mustard">
+            <span class="lifecycle-badge P">P</span
+            ><img src="mustard.jpg" alt="Mustard" />
+          </div>
+          <div class="names">
+            <span class="common">Mustard</span>
+            <span class="sci">Hirschfeldia incana</span>
+          </div>
+          <div class="desc">
+            A fast-spreading plant with small yellow flowers, abundant
+            throughout the park. It regrows from its roots and can quickly
+            dominate open ground, so dig up the whole plant.
+          </div>
+        </div>
+
+        <!-- Yellow star thistle -->
+        <div class="card invasive">
+          <div class="photo-ph" id="photo-yellow-star-thistle">
+            <span class="lifecycle-badge P">P</span
+            ><span class="concern-flag">⚠️</span
+            ><img src="yellow_star.jpg" alt="Yellow star thistle" />
+          </div>
+          <div class="names">
+            <span class="common">Yellow Star Thistle</span>
+            <span class="sci">Centaurea solstitialis</span>
+          </div>
+          <div class="desc">
+            A plant with sharp yellow spines that favors disturbed trail edges.
+            It's toxic to horses and spreads aggressively, so bag it for removal
+            instead of composting.
+          </div>
+        </div>
+
+        <!-- Stinkwort -->
+        <div class="card invasive">
+          <div class="photo-ph" id="photo-stinkwort">
+            <span class="lifecycle-badge P">P</span
+            ><span class="concern-flag">⚠️</span
+            ><img src="stinkwort.jpg" alt="Stinkwort" />
+          </div>
+          <div class="names">
+            <span class="common">Stinkwort</span>
+            <span class="sci">Dittrichia graveolens</span>
+          </div>
+          <div class="desc">
+            A sticky, strong-smelling plant that can cause allergic skin
+            reactions on contact. It spreads readily along trails, so bag it for
+            removal instead of composting.
+          </div>
+        </div>
+      </div>
+
+      <div class="key">
+        <h3>Icon Key</h3>
+        <div class="key-item">
+          <span class="swatch A">A</span>
+          <span><b>Annual</b> — new plant each year, pull &amp; compost</span>
+        </div>
+        <div class="key-item">
+          <span class="swatch P">P</span>
+          <span
+            ><b>Perennial</b> — regrows from roots, dig up fully &amp;
+            compost</span
+          >
+        </div>
+        <div class="key-item">
+          <span class="emoji">⚠️</span>
+          <span
+            ><b>Extra Concern</b> — pernicious; bag for removal, don't
+            compost</span
+          >
+        </div>
+      </div>
+
+      <div class="cta">
+        <div class="txt">
+          <h3>Get Involved</h3>
+          <p>
+            Join the Alum Rock Trail Crew every Monday and Wednesday morning, or
+            our public community day on the second Saturday of each month.
+          </p>
+        </div>
+        <div class="contact">arp@example.com</div>
+      </div>
+
+      <div class="footer-note">
+        Not sure what you're looking at? Ask — look for city staff or a
+        volunteer t-shirt.
+      </div>
+    </div>
+  </body>
+</html>
