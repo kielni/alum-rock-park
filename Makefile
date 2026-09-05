@@ -1,4 +1,7 @@
-.PHONY: lint lint-py gallery sync sync-photos flyer-pdf .prep
+.PHONY: lint lint-py gallery sync sync-photos flyer-photos flyer-pdf .prep
+
+FLYER_PHOTOS := oak coyote_brush ca_sagebrush vinegar_weed tarweed poison_oak \
+	milk_thistle italian_thistle horehound mustard yellow_star stinkwort
 
 # local.env's `export KEY=value` lines are also valid Make syntax; export
 # (no args) re-exports everything from it to every recipe's subshell, so
@@ -51,11 +54,13 @@ sync-photos: gallery
 	aws s3 cp web/photos.json s3://$(S3_BUCKET)/arp/photos.json --acl public-read
 
 
-flyer-pdf:
-	# requires `uv add weasyprint`; renders HTML/CSS directly to PDF,
-	# honoring @page margins instead of a browser's print-dialog defaults.
-	# DYLD_LIBRARY_PATH is needed so ctypes can find Homebrew's glib/pango/
-	# cairo (e.g. libgobject) - they're installed but not on the default
-	# dynamic linker search path on macOS.
-	DYLD_LIBRARY_PATH="$$(brew --prefix)/lib" \
-		uv run weasyprint flyer/index.html "flyer/flyer.pdf"
+flyer-photos:
+	# rdownsizes full-resolution source photos to what a ~2.4in print column actually
+	# needs, so the compiled PDF stays small enough to email
+	mkdir -p flyer/print-photos
+	for f in $(FLYER_PHOTOS); do \
+		magick "flyer/$$f.jpg" -auto-orient -resize '1000x1000>' -strip -quality 82 "flyer/print-photos/$$f.jpg"; \
+	done
+
+flyer-pdf: flyer-photos
+	typst compile flyer/flyer.typ flyer/flyer.pdf

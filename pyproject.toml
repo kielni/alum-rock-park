@@ -13,5 +13,4 @@ dependencies = [
     "pydantic>=2.13.4",
     "pyproj>=3.7.2",
     "shapely>=2.1.2",
-    "weasyprint>=69.0",
 ]

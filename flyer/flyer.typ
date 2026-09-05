@@ -298,22 +298,22 @@
 
   plant-grid((
     plant-card(
-      "Oaks", "Quercus spp.", "P", "oak.jpg", ph, descs.at(0), names-height, desc-height,
+      "Oaks", "Quercus spp.", "P", "print-photos/oak.jpg", ph, descs.at(0), names-height, desc-height,
     ),
     plant-card(
-      "Coyote Brush", "Baccharis pilularis", "P", "coyote_brush.jpg", ph, descs.at(1), names-height, desc-height,
+      "Coyote Brush", "Baccharis pilularis", "P", "print-photos/coyote_brush.jpg", ph, descs.at(1), names-height, desc-height,
     ),
     plant-card(
-      "California Sagebrush", "Artemisia californica", "P", "ca_sagebrush.jpg", ph, descs.at(2), names-height, desc-height,
+      "California Sagebrush", "Artemisia californica", "P", "print-photos/ca_sagebrush.jpg", ph, descs.at(2), names-height, desc-height,
     ),
     plant-card(
-      "Vinegar Weed", "Trichostema lanceolatum", "A", "vinegar_weed.jpg", ph, descs.at(3), names-height, desc-height,
+      "Vinegar Weed", "Trichostema lanceolatum", "A", "print-photos/vinegar_weed.jpg", ph, descs.at(3), names-height, desc-height,
     ),
     plant-card(
-      "Tarweed", "Holocarpha virgata", "A", "tarweed.jpg", ph, descs.at(4), names-height, desc-height,
+      "Tarweed", "Holocarpha virgata", "A", "print-photos/tarweed.jpg", ph, descs.at(4), names-height, desc-height,
     ),
     plant-card(
-      "Poison Oak", "Toxicodendron diversilobum", "P", "poison_oak.jpg", ph, descs.at(5), names-height, desc-height,
+      "Poison Oak", "Toxicodendron diversilobum", "P", "print-photos/poison_oak.jpg", ph, descs.at(5), names-height, desc-height,
     ),
   ))
 
@@ -325,28 +325,28 @@
 
   plant-grid((
     plant-card(
-      "Milk Thistle", "Silybum marianum", "A", "milk_thistle.jpg", ph, descs.at(6), names-height, desc-height,
+      "Milk Thistle", "Silybum marianum", "A", "print-photos/milk_thistle.jpg", ph, descs.at(6), names-height, desc-height,
       native: false,
     ),
     plant-card(
-      "Italian Thistle", "Carduus pycnocephalus", "A", "italian_thistle.jpg", ph, descs.at(7), names-height, desc-height,
+      "Italian Thistle", "Carduus pycnocephalus", "A", "print-photos/italian_thistle.jpg", ph, descs.at(7), names-height, desc-height,
       native: false,
     ),
     plant-card(
-      "White Horehound", "Marrubium vulgare", "P", "horehound.jpg", ph, descs.at(8), names-height, desc-height,
+      "White Horehound", "Marrubium vulgare", "P", "print-photos/horehound.jpg", ph, descs.at(8), names-height, desc-height,
       native: false,
     ),
     plant-card(
-      "Mustard", "Hirschfeldia incana", "P", "mustard.jpg", ph, descs.at(9), names-height, desc-height,
+      "Mustard", "Hirschfeldia incana", "P", "print-photos/mustard.jpg", ph, descs.at(9), names-height, desc-height,
       native: false,
     ),
     plant-card(
-      "Yellow Star Thistle", "Centaurea solstitialis", "P", "yellow_star.jpg", ph, descs.at(10), names-height, desc-height,
+      "Yellow Star Thistle", "Centaurea solstitialis", "P", "print-photos/yellow_star.jpg", ph, descs.at(10), names-height, desc-height,
       native: false,
       concern: true,
     ),
     plant-card(
-      "Stinkwort", "Dittrichia graveolens", "P", "stinkwort.jpg", ph, descs.at(11), names-height, desc-height,
+      "Stinkwort", "Dittrichia graveolens", "P", "print-photos/stinkwort.jpg", ph, descs.at(11), names-height, desc-height,
       native: false,
       concern: true,
     ),
