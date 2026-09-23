@@ -6,6 +6,7 @@ import math
 import os
 from datetime import datetime
 from pathlib import Path
+import re
 from typing import Any
 
 from PIL import ExifTags, Image, ImageOps
@@ -13,6 +14,18 @@ from shapely.geometry import Point, shape
 from shapely.geometry.base import BaseGeometry
 
 Area = tuple[str, BaseGeometry]
+# TODO: replace with a Pydantic model
+"""
+sample record
+  {
+    "filename": "20260622_113323.jpg",
+    "date": "2026-06-22T11:33:23",
+    "location": "June 22",
+    "lat": 37.39535333333333,
+    "lon": -121.82527166666667,
+    "description": null
+  },
+"""
 PhotoRecord = dict[str, str | float | None]
 
 
@@ -35,16 +48,47 @@ def load_areas() -> list[Area]:
     return areas
 
 
-def find_location(lon: float, lat: float, areas: list[Area]) -> str:
+def in_location(lon: float, lat: float, areas: list[Area]) -> str | None:
     """Return the name of the enclosing work-area polygon for a point.
 
-    Returns "Other" if the point falls outside every known polygon.
+    Returns None if the point falls outside every known polygon.
     """
     point = Point(lon, lat)
     for name, geometry in areas:
         if geometry.contains(point):
             return name
-    return "Other"
+    return None
+
+
+def nearby_location(lon: float, lat: float, areas: list[Area]) -> str | None:
+    """Return the work area that most overlaps a circle around a point.
+
+    Draws a NEARBY_RADIUS_DEGREES circle around the point and picks
+    the area with the largest overlap.
+    Returns None if the circle overlaps no area.
+    """
+    # about ~111m north-south and ~89m east-west at 37°N
+    circle: BaseGeometry = Point(lon, lat).buffer(0.001)
+    best_name: str | None = None
+    best_overlap: float = 0.0
+    for name, geometry in areas:
+        overlap: float = circle.intersection(geometry).area
+        if overlap > best_overlap:
+            best_name, best_overlap = name, overlap
+    return best_name
+
+
+def find_location(lon: float, lat: float, areas: list[Area]) -> str:
+    """Return the work area for a point, falling back to nearby areas.
+
+    Uses the enclosing polygon if there is one, otherwise the area that
+    most overlaps a NEARBY_RADIUS_DEGREES circle around the point.
+    Returns "Other" if neither matches.
+    """
+    loc = in_location(lon, lat, areas)
+    if loc:
+        return loc
+    return nearby_location(lon, lat, areas) or "Other"
 
 
 def dms_to_decimal(dms: tuple[float, float, float], ref: str) -> float:
@@ -82,7 +126,7 @@ def read_photo_description(exif: Image.Exif, exif_ifd: dict[int, Any]) -> str | 
 
 
 def process_photo(
-    path: Path, areas: list[Area], output_dir: Path
+    path: Path, areas: list[Area], output_dir: Path, processed: set[str]
 ) -> PhotoRecord | None:
     """Build one gallery record for a photo, resizing it as a side effect.
 
@@ -104,6 +148,12 @@ def process_photo(
             print(f"skipping {path.name}: no date in EXIF")
             return None
         dt = dt.replace(":", "-", 2).replace(" ", "T")
+        timestamp = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
+        filename = timestamp.strftime("%Y%m%d_%H%M%S") + ".jpg"
+        if path.name in processed:
+            print(f"skipping {path.name}: already processed")
+            return None
+        print(f"{path}\t{filename}")
 
         location: str | None = None
         lat: float | None = None
@@ -115,9 +165,6 @@ def process_photo(
 
         description: str | None = read_photo_description(exif, exif_ifd)
 
-        timestamp = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
-        filename = timestamp.strftime("%Y%m%d_%H%M%S") + ".jpg"
-
         thumbnail_path = output_dir / filename
         if not thumbnail_path.exists():
             print(f"resizing {path} to {filename}")
@@ -127,6 +174,7 @@ def process_photo(
 
     record: PhotoRecord = {
         "filename": filename,
+        "original_filename": path.name,
         "date": dt,
         "location": location,
         "lat": lat,
@@ -256,38 +304,62 @@ def cluster_other_photos(records: list[PhotoRecord]) -> None:
             record["location"] = name
 
 
+def load_photo_filenames(data_path: Path) -> set[str]:
+    with open(data_path) as f:
+        data = json.loads(f.read())
+    return {d.get("original_filename") for d in data}
+
+
 def build_gallery() -> None:
     """Regenerate the gallery from every photo under PHOTOS_DIR.
 
     Writes resized thumbnails to photos/ and a manifest (date,
-    location tag, description) to photos.json. The manifest is rebuilt
-    from scratch every run (so location/description stay current), but
-    a photo's thumbnail is only (re)generated the first time it's seen
-    (see process_photo) - so reruns only resize photos added since the
-    last run.
+    location tag, description) to photos.json. 
     """
     photos_dir: Path = Path(os.environ["PHOTOS_DIR"])
     project_dir: Path = Path(os.environ["PROJECT_DIR"]) / "web"
     output_dir: Path = project_dir / "photos"
     output_dir.mkdir(parents=True, exist_ok=True)
+    json_filename: Path = project_dir / "photos.json"
+
+    # TODO: read data into a list of Pydantic models
+    with open(json_filename) as f:
+        data = json.loads(f.read())
+    filenames = {d.get("original_filename") for d in data}
 
     areas: list[Area] = load_areas()
-    paths: list[Path] = sorted(
-        p
-        for p in photos_dir.rglob("*")
-        if p.suffix.lower() in (".jpg", ".jpeg") and output_dir not in p.parents
-    )
+    all_paths: list[Path] = []
+    for p in photos_dir.rglob("*"):
+        if not p.suffix.lower() in (".jpg", ".jpeg"):
+            continue
+        all_paths.append(p)
+
+    all_paths = sorted(all_paths, key=lambda p: p.name, reverse=True)
+    print(f"{len(all_paths)} photos")
+    # edited photos have two files: IMG_000.JPG and IMG_000_edited.jpeg
+    # keep only edited
+    paths: list[Path] = []
+    prev_number = ""
+    for p in all_paths:
+        if match := re.search(r"_(\d+)", p.name):
+            if match.group(1) == prev_number:
+                print(f"skipping unedited {p.name}")
+                continue
+            prev_number = match.group(1)
+        paths.append(p)
     print(f"read {len(paths)} photos from {photos_dir}")
     print(f"writing thumbnails to {output_dir}")
 
     records: list[PhotoRecord] = []
     for path in paths:
-        record = process_photo(path, areas, output_dir)
+        record = process_photo(path, areas, output_dir, filenames)
         if record is not None:
             records.append(record)
 
     backfill_location_by_day(records)
     cluster_other_photos(records)
+
+    # TODO: merge records with existing set of Pydantic models
 
     # Newest day first overall, but oldest-to-newest within a day: sort
     # ascending by full timestamp first, then stable-sort by day
@@ -296,11 +368,13 @@ def build_gallery() -> None:
     records.sort(key=lambda r: r["date"])
     records.sort(key=lambda r: r["date"][:10], reverse=True)
 
-    manifest_path: Path = project_dir / "photos.json"
-    with open(manifest_path, "w") as f:
+    # TODO: dedupe by filename
+
+    # TODO: write merged and sorted list to JSON
+    with open(photos_json, "w") as f:
         json.dump(records, f, indent=2)
 
-    print(f"wrote {len(records)} photos to {manifest_path}")
+    print(f"wrote {len(records)} photos to {photos_json}")
 
 
 if __name__ == "__main__":
