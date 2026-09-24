@@ -4,29 +4,71 @@ thumbnails and a photos.json manifest for the gallery pane."""
 import json
 import math
 import os
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 import re
-from typing import Any
+from typing import Any, Self
 
 from PIL import ExifTags, Image, ImageOps
+from pydantic import BaseModel, field_validator, model_validator
 from shapely.geometry import Point, shape
 from shapely.geometry.base import BaseGeometry
 
 Area = tuple[str, BaseGeometry]
-# TODO: replace with a Pydantic model
-"""
-sample record
-  {
-    "filename": "20260622_113323.jpg",
-    "date": "2026-06-22T11:33:23",
-    "location": "June 22",
-    "lat": 37.39535333333333,
-    "lon": -121.82527166666667,
-    "description": null
-  },
-"""
-PhotoRecord = dict[str, str | float | None]
+
+EXIF_DATE_FORMAT: str = "%Y:%m:%d %H:%M:%S"
+EXIF_DATE_PATTERN: re.Pattern[str] = re.compile(r"^\d{4}:\d{2}:\d{2} ")
+
+
+class PhotoRecord(BaseModel):
+    """One photo and its metadata.
+
+    Sample record:
+
+        {
+          "filename": "20260622_113323.jpg",
+          "original_filename": "IMG_1234.jpeg",
+          "dt": "2026-06-22T11:33:23",
+          "location": "June 22",
+          "lat": 37.39535333333333,
+          "lon": -121.82527166666667,
+          "description": null
+        }
+
+    Field order matches the JSON key order, since that's the order
+    model_dump() writes them in. filename is derived from dt when not
+    given (see set_filename).
+    """
+
+    filename: str = ""
+    original_filename: str | None = None
+    dt: datetime
+    location: str | None = None
+    lat: float | None = None
+    lon: float | None = None
+    description: str | None = None
+
+    @field_validator("dt", mode="before")
+    @classmethod
+    def parse_exif_date(cls, value: str | datetime) -> datetime:
+        """Accept EXIF-format dates (2026:06:22 11:33:23) as well as ISO."""
+        if isinstance(value, datetime):
+            return value
+        if EXIF_DATE_PATTERN.match(value):
+            return datetime.strptime(value, EXIF_DATE_FORMAT)
+        return datetime.fromisoformat(value)
+
+    @model_validator(mode="after")
+    def set_filename(self) -> Self:
+        """Default filename to a yyyymmdd_hhmmss.jpg name from dt."""
+        if not self.filename:
+            self.filename = self.dt.strftime("%Y%m%d_%H%M%S") + ".jpg"
+        return self
+
+    @property
+    def day(self) -> date:
+        """The calendar day the photo was taken."""
+        return self.dt.date()
 
 
 def load_areas() -> list[Area]:
@@ -132,12 +174,16 @@ def process_photo(
 
     Extracts date, location, and description from EXIF, and resizes the
     image for web viewing and writes it to output_dir under a
-    yyyymmdd_hhmmss.jpg name derived from its date - unless that name
+    yyyymmdd_hhmmss.jpg name derived from its datetime - unless that name
     is already present in output_dir, in which case the existing
-    thumbnail is left alone, so reruns only do resize work for photos
-    added since the last run. Returns None if the photo has no usable
-    date.
+    thumbnail is left alone. Returns None without opening the image if
+    path's name is in processed (ie already in photos.json), or if the
+    photo has no usable datetime.
     """
+    if path.name in processed:
+        print(f"skipping {path.name}: already processed")
+        return None
+
     with Image.open(path) as img:
         exif: Image.Exif = img.getexif()
         exif_ifd: dict[int, Any] = exif.get_ifd(ExifTags.IFD.Exif)
@@ -147,40 +193,25 @@ def process_photo(
         if not dt:
             print(f"skipping {path.name}: no date in EXIF")
             return None
-        dt = dt.replace(":", "-", 2).replace(" ", "T")
-        timestamp = datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
-        filename = timestamp.strftime("%Y%m%d_%H%M%S") + ".jpg"
-        if path.name in processed:
-            print(f"skipping {path.name}: already processed")
-            return None
-        print(f"{path}\t{filename}")
+        record = PhotoRecord(
+            original_filename=path.name,
+            dt=dt,
+            description=read_photo_description(exif, exif_ifd),
+        )
+        print(f"{path}\t{record.filename}")
 
-        location: str | None = None
-        lat: float | None = None
-        lon: float | None = None
         if gps_ifd.get(2) and gps_ifd.get(4):
-            lat = dms_to_decimal(gps_ifd[2], gps_ifd.get(1, "N"))
-            lon = dms_to_decimal(gps_ifd[4], gps_ifd.get(3, "E"))
-            location = find_location(lon, lat, areas)
+            record.lat = dms_to_decimal(gps_ifd[2], gps_ifd.get(1, "N"))
+            record.lon = dms_to_decimal(gps_ifd[4], gps_ifd.get(3, "E"))
+            record.location = find_location(record.lon, record.lat, areas)
 
-        description: str | None = read_photo_description(exif, exif_ifd)
-
-        thumbnail_path = output_dir / filename
+        thumbnail_path = output_dir / record.filename
         if not thumbnail_path.exists():
-            print(f"resizing {path} to {filename}")
+            print(f"resizing {path} to {record.filename}")
             image = ImageOps.exif_transpose(img)
             image.thumbnail((800, 800))
             image.save(thumbnail_path, "JPEG", quality=85)
 
-    record: PhotoRecord = {
-        "filename": filename,
-        "original_filename": path.name,
-        "date": dt,
-        "location": location,
-        "lat": lat,
-        "lon": lon,
-        "description": description,
-    }
     return record
 
 
@@ -194,22 +225,22 @@ def backfill_location_by_day(records: list[PhotoRecord]) -> None:
     genuinely different location. Ambiguous days (more than one distinct
     confirmed location) are left alone rather than guessed at.
     """
-    by_day: dict[str, list[PhotoRecord]] = {}
+    by_day: dict[date, list[PhotoRecord]] = {}
     for record in records:
-        by_day.setdefault(record["date"][:10], []).append(record)
+        by_day.setdefault(record.day, []).append(record)
 
     for day_records in by_day.values():
         known_locations = {
-            record["location"]
+            record.location
             for record in day_records
-            if record["location"] not in (None, "Other")
+            if record.location not in (None, "Other")
         }
         if len(known_locations) != 1:
             continue
         (location,) = known_locations
         for record in day_records:
-            if record["location"] in (None, "Other"):
-                record["location"] = location
+            if record.location in (None, "Other"):
+                record.location = location
 
 
 EARTH_RADIUS_METERS = 6_371_000
@@ -236,16 +267,15 @@ def cluster_name(records: list[PhotoRecord]) -> str:
     clusters carry a recognizable date instead of an arbitrary letter.
     """
     names: list[str] = []
-    for day in sorted({record["date"][:10] for record in records}):
-        dt = datetime.strptime(day, "%Y-%m-%d")
-        names.append(f"{dt.strftime('%B')} {dt.day}")
+    for day in sorted({record.day for record in records}):
+        names.append(f"{day.strftime('%B')} {day.day}")
     return ", ".join(names)
 
 
 def cluster_centroid(cluster: dict[str, Any]) -> None:
     """Recompute a cluster's centroid as the mean of its records' points."""
-    cluster["lat"] = sum(r["lat"] for r in cluster["records"]) / len(cluster["records"])
-    cluster["lon"] = sum(r["lon"] for r in cluster["records"]) / len(cluster["records"])
+    cluster["lat"] = sum(r.lat for r in cluster["records"]) / len(cluster["records"])
+    cluster["lon"] = sum(r.lon for r in cluster["records"]) / len(cluster["records"])
 
 
 def cluster_other_photos(records: list[PhotoRecord]) -> None:
@@ -262,11 +292,11 @@ def cluster_other_photos(records: list[PhotoRecord]) -> None:
     marker instead of disappearing into an undifferentiated "Other"
     bucket.
     """
-    by_day: dict[str, list[PhotoRecord]] = {}
+    by_day: dict[date, list[PhotoRecord]] = {}
     for record in records:
-        if record["location"] != "Other":
+        if record.location != "Other":
             continue
-        by_day.setdefault(record["date"][:10], []).append(record)
+        by_day.setdefault(record.day, []).append(record)
 
     # Pass 1: one cluster per day.
     clusters: list[dict[str, Any]] = []
@@ -301,20 +331,30 @@ def cluster_other_photos(records: list[PhotoRecord]) -> None:
     for cluster in clusters:
         name = cluster_name(cluster["records"])
         for record in cluster["records"]:
-            record["location"] = name
+            record.location = name
 
 
-def load_photo_filenames(data_path: Path) -> set[str]:
-    with open(data_path) as f:
-        data = json.loads(f.read())
-    return {d.get("original_filename") for d in data}
+def load_records(json_path: Path) -> list[PhotoRecord]:
+    """Load and validate photos.json, or return [] if it doesn't exist yet."""
+    if not json_path.exists():
+        return []
+    with open(json_path) as f:
+        return [PhotoRecord.model_validate(d) for d in json.load(f)]
+
+
+def write_records(json_path: Path, records: list[PhotoRecord]) -> None:
+    """Write records to photos.json."""
+    with open(json_path, "w") as f:
+        json.dump([r.model_dump(mode="json") for r in records], f, indent=2)
 
 
 def build_gallery() -> None:
-    """Regenerate the gallery from every photo under PHOTOS_DIR.
+    """Build the gallery from photos under PHOTOS_DIR.
 
-    Writes resized thumbnails to photos/ and a manifest (date,
-    location tag, description) to photos.json. 
+    Writes resized thumbnails to photos/ and a manifest (datetime,
+    location tag, description) to photos.json. Only photos not already
+    in photos.json are processed; they're merged into the existing
+    records by filename, with new records replacing old ones.
     """
     photos_dir: Path = Path(os.environ["PHOTOS_DIR"])
     project_dir: Path = Path(os.environ["PROJECT_DIR"]) / "web"
@@ -322,10 +362,10 @@ def build_gallery() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     json_filename: Path = project_dir / "photos.json"
 
-    # TODO: read data into a list of Pydantic models
-    with open(json_filename) as f:
-        data = json.loads(f.read())
-    filenames = {d.get("original_filename") for d in data}
+    existing: list[PhotoRecord] = load_records(json_filename)
+    filenames: set[str] = {
+        r.original_filename for r in existing if r.original_filename is not None
+    }
 
     areas: list[Area] = load_areas()
     all_paths: list[Path] = []
@@ -356,25 +396,25 @@ def build_gallery() -> None:
         if record is not None:
             records.append(record)
 
+    # Only new records: existing locations are already resolved (eg
+    # "June 22"), so they're left as-is.
     backfill_location_by_day(records)
     cluster_other_photos(records)
 
-    # TODO: merge records with existing set of Pydantic models
+    # Merge and dedupe by filename; new records replace existing ones.
+    by_filename: dict[str, PhotoRecord] = {r.filename: r for r in existing}
+    by_filename.update({r.filename: r for r in records})
+    merged: list[PhotoRecord] = list(by_filename.values())
 
     # Newest day first overall, but oldest-to-newest within a day: sort
     # ascending by full timestamp first, then stable-sort by day
     # descending - the stable sort preserves the ascending order already
     # established within each day's group.
-    records.sort(key=lambda r: r["date"])
-    records.sort(key=lambda r: r["date"][:10], reverse=True)
+    merged.sort(key=lambda r: r.dt)
+    merged.sort(key=lambda r: r.day, reverse=True)
 
-    # TODO: dedupe by filename
-
-    # TODO: write merged and sorted list to JSON
-    with open(photos_json, "w") as f:
-        json.dump(records, f, indent=2)
-
-    print(f"wrote {len(records)} photos to {photos_json}")
+    write_records(json_filename, merged)
+    print(f"wrote {len(merged)} photos ({len(records)} new) to {json_filename}")
 
 
 if __name__ == "__main__":
