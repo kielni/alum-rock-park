@@ -155,9 +155,9 @@
 
 #let legend-item(swatch, body) = grid(
   columns: (15pt, auto),
-  column-gutter: 8pt,
+  column-gutter: 6pt,
   align: (center + horizon, horizon),
-)[#swatch][#text(size: 9pt)[#body]]
+)[#swatch][#text(size: 8.5pt)[#body]]
 
 #let key-box(items) = block(
   width: 100%,
@@ -167,7 +167,7 @@
   below: 5pt,
   breakable: false,
 )[
-  #grid(columns: (1fr, 1fr), column-gutter: 20pt, row-gutter: 3pt, ..items)
+  #grid(columns: (1fr, 1fr), column-gutter: 14pt, row-gutter: 3pt, ..items)
 ]
 
 #let footer-note(body) = align(center)[
@@ -214,14 +214,14 @@
   José's oldest park.
 
   #text(fill: gold, weight: "bold")[Get involved:] Join us Monday and
-  Wednesday mornings, or the second Saturday of each month — arp\@example.com.
+  Wednesday mornings, or the second Saturday of each month.
 ]
 #let top-matter = box(width: content-w)[#masthead-content #why-content]
 
 #let bottom-matter = box(width: content-w)[
   #key-box((
-    legend-item(legend-swatch("A", gold, gold-text))[*Annual* — new plant each year, pull \& compost],
-    legend-item(legend-swatch("P", bark, white))[*Perennial* — regrows from roots, dig up fully],
+    legend-item(legend-swatch("A", gold, gold-text))[*Annual* — new plant each year (invasive: pull \& compost)],
+    legend-item(legend-swatch("P", bark, white))[*Perennial* — regrows from roots (invasive: dig up fully)],
     legend-item(box(width: 15pt, height: 15pt)[#align(center+horizon)[#text(size: 12pt)[⚠️]]])[*Bag \& remove* — too vigorous for compost piles to kill],
     [],
   ))
@@ -260,7 +260,7 @@
     "A small-leaved evergreen shrub with fuzzy white seed heads in fall. It's a keystone species, hosting far more insects, birds, and other wildlife than most other native plants.",
     "A soft shrub with delicate, silvery grey-green foliage. Brushing the leaves releases a sage-like scent, making it easy to identify by smell alone.",
     "A low, sticky herb whose leaves smell strongly of vinegar when crushed. It's tough enough to keep blooming through the driest part of late summer, when little else is flowering.",
-    "A sticky-stemmed herb with cheerful yellow flowers. It blooms late into the dry season, offering a rare source of nectar when most other plants have gone dormant.",
+    "A tall, branching plant with stiff, toothed leaves and yellow daisy-like flowers. Its buds fill with sticky white resin; butterflies visit the flowers and songbirds eat the seeds.",
     [*Do not touch.* Its oils cause an itchy rash in most people, but birds and deer rely on its berries and leaves. Look for its bright red color in fall.],
     "A spiny plant with white-marbled leaves and purple flower heads. It spreads quickly by seed and crowds out natives, so pull it before it flowers and add it to compost.",
     "A spiny plant with tall stalks and clustered pink-purple flowers. It forms dense stands that block trails and crowd out natives, so dig it up before it flowers.",
@@ -277,7 +277,7 @@
     ("Coyote Brush", "Baccharis pilularis"),
     ("California Sagebrush", "Artemisia californica"),
     ("Vinegar Weed", "Trichostema lanceolatum"),
-    ("Tarweed", "Holocarpha virgata"),
+    ("Gumweed", "Grindelia camporum"),
     ("Poison Oak", "Toxicodendron diversilobum"),
     ("Milk Thistle", "Silybum marianum"),
     ("Italian Thistle", "Carduus pycnocephalus"),
@@ -310,7 +310,7 @@
       "Vinegar Weed", "Trichostema lanceolatum", "A", "print-photos/vinegar_weed.jpg", ph, descs.at(3), names-height, desc-height,
     ),
     plant-card(
-      "Tarweed", "Holocarpha virgata", "A", "print-photos/tarweed.jpg", ph, descs.at(4), names-height, desc-height,
+      "Gumweed", "Grindelia camporum", "P", "print-photos/gumweed.jpg", ph, descs.at(4), names-height, desc-height,
     ),
     plant-card(
       "Poison Oak", "Toxicodendron diversilobum", "P", "print-photos/poison_oak.jpg", ph, descs.at(5), names-height, desc-height,

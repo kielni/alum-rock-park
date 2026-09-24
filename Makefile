@@ -1,6 +1,6 @@
 .PHONY: lint lint-py gallery sync sync-photos flyer-photos flyer-pdf .prep
 
-FLYER_PHOTOS := oak coyote_brush ca_sagebrush vinegar_weed tarweed poison_oak \
+FLYER_PHOTOS := oak coyote_brush ca_sagebrush vinegar_weed gumweed poison_oak \
 	milk_thistle italian_thistle horehound mustard yellow_star stinkwort
 
 # local.env's `export KEY=value` lines are also valid Make syntax; export
