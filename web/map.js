@@ -49,8 +49,8 @@ function workDaysInWindow(records) {
 
   const days = new Set();
   records.forEach((record) => {
-    if (new Date(record.date) < cutoff) return;
-    days.add(record.date.slice(0, 10));
+    if (new Date(record.dt) < cutoff) return;
+    days.add(record.dt.slice(0, 10));
   });
   return days.size;
 }
@@ -288,7 +288,8 @@ function createMarkers(map, data) {
 // each group's lat/lon for a marker position - the clustering decision
 // already happened in Python; this is just centroid averaging of
 // already-grouped points - and adds one circle+label marker per cluster
-// showing its work-day count, colored the same way as named areas.
+// with at least one recent work day, showing its work-day count,
+// colored the same way as named areas.
 function createClusterMarkers(map, records) {
   const byCluster = {};
   records.forEach((record) => {
@@ -300,7 +301,7 @@ function createClusterMarkers(map, records) {
     byCluster[record.location].push(record);
   });
 
-  const features = Object.keys(byCluster).map((location) => {
+  const allFeatures = Object.keys(byCluster).map((location) => {
     const clusterRecords = byCluster[location];
     const lat =
       clusterRecords.reduce((sum, r) => sum + r.lat, 0) / clusterRecords.length;
@@ -318,6 +319,11 @@ function createClusterMarkers(map, records) {
       },
     };
   });
+  // Skip clusters with no work days in the window - an off-map site
+  // with no recent activity isn't worth a marker.
+  const features = allFeatures.filter(
+    (feature) => feature.properties.workDays > 0,
+  );
 
   map.addSource("other-clusters", {
     type: "geojson",

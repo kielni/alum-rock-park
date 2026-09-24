@@ -82,7 +82,7 @@ function locationGroup(group) {
 function dayGroup(day) {
   const box = el("div", "box day-group");
   box.appendChild(
-    el("p", "title is-5 day-header", dayLabel(day.records[0].date)),
+    el("p", "title is-5 day-header", dayLabel(day.records[0].dt)),
   );
   groupBy(day.records, (record) => record.location).forEach((group) => {
     box.appendChild(locationGroup(group));
@@ -165,7 +165,7 @@ function renderGallery(records) {
     container.appendChild(filterNotice(filter));
   }
 
-  groupBy(filtered, (record) => record.date.slice(0, 10)).forEach((day) => {
+  groupBy(filtered, (record) => record.dt.slice(0, 10)).forEach((day) => {
     container.appendChild(dayGroup(day));
   });
 
