@@ -64,3 +64,5 @@ flyer-photos:
 
 flyer-pdf: flyer-photos
 	typst compile flyer/flyer.typ flyer/flyer.pdf
+	aws s3 cp flyer/flyer.pdf s3://$(S3_BUCKET)/arp/flyer.pdf --acl public-read
+	echo "http://$(S3_BUCKET).s3.us-west-2.amazonaws.com/arp/flyer.pdf"
