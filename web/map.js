@@ -49,8 +49,8 @@ function workDaysInWindow(records) {
 
   const days = new Set();
   records.forEach((record) => {
-    if (new Date(record.date) < cutoff) return;
-    days.add(record.date.slice(0, 10));
+    if (new Date(record.dt) < cutoff) return;
+    days.add(record.dt.slice(0, 10));
   });
   return days.size;
 }
