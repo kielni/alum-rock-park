@@ -63,7 +63,7 @@
 
 // A plant photo with its lifecycle badge (A/P) and, for extra-concern
 // invasives, a warning flag — placed via `place()` so stacking order is
-// explicit instead of depending on DOM/paint order like the HTML version did.
+// explicit.
 #let plant-photo(photo, height, lifecycle, concern: false) = box(
   width: 100%,
   height: height,

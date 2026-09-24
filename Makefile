@@ -55,7 +55,7 @@ sync-photos: gallery
 
 
 flyer-photos:
-	# rdownsizes full-resolution source photos to what a ~2.4in print column actually
+	# downsizes full-resolution source photos to what a ~2.4in print column actually
 	# needs, so the compiled PDF stays small enough to email
 	mkdir -p flyer/print-photos
 	for f in $(FLYER_PHOTOS); do \
